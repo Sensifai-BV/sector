@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main", "develop"]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt:
+    name: Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup toolchain install stable --profile minimal -c rustfmt
+      - run: cargo fmt --all --check
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup toolchain install stable --profile minimal -c clippy
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup toolchain install stable --profile minimal
+      - run: cargo test --workspace
+
+  # The no_std guarantee. The core family must build with no std and no alloc on
+  # a target that has neither -- this is the job that keeps a stray `Vec` from
+  # reaching the engine, and it must never be allowed to fail-soft.
+  nostd:
+    name: No-Std Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          rustup toolchain install stable --profile minimal \
+            --target thumbv7em-none-eabihf --target riscv32imc-unknown-none-elf
+      - name: Neutral bare-metal target
+        run: |
+          cargo build -p sector-hal -p sector-quant -p sector-codec \
+                      -p sector-format -p sector-core \
+            --no-default-features --target thumbv7em-none-eabihf
+      - name: T0 target (ESP32-C3, RISC-V)
+        run: |
+          cargo build -p sector-hal -p sector-quant -p sector-codec \
+                      -p sector-format -p sector-core \
+            --no-default-features --target riscv32imc-unknown-none-elf
+
+  deny:
+    name: Cargo Deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: EmbarkStudios/cargo-deny-action@v2
