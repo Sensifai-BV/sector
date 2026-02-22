@@ -1,0 +1,11 @@
+/target
+**/target
+Cargo.lock.bak
+.DS_Store
+/datasets/*
+!/datasets/README.md
+/measurements/raw/*
+!/measurements/raw/.gitkeep
+*.sector
+.idea
+.tools
