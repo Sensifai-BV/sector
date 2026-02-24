@@ -1,0 +1,23 @@
+[workspace]
+members = ["crates/*"]
+exclude = ["targets/esp32", "targets/rp2040"]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ja7ad/sector"
+homepage = "https://github.com/ja7ad/sector"
+
+[workspace.dependencies]
+sector-hal = { version = "0.1.0", path = "crates/sector-hal" }
+sector-quant = { version = "0.1.0", path = "crates/sector-quant" }
+sector-codec = { version = "0.1.0", path = "crates/sector-codec" }
+sector-format = { version = "0.1.0", path = "crates/sector-format" }
+sector-core = { version = "0.1.0", path = "crates/sector-core" }
+sector-build = { version = "0.1.0", path = "crates/sector-build" }
+sector-sim = { version = "0.1.0", path = "crates/sector-sim" }
+
+[workspace.lints.clippy]
+all = "deny"
