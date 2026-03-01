@@ -1,0 +1,25 @@
+[package]
+name = "sector-bench"
+version.workspace = true
+edition.workspace = true
+description = "Five-axis benchmark harness: recall, performance, budgets and fault tolerance on real datasets"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+publish = false
+
+[[bin]]
+name = "sector-bench"
+path = "src/main.rs"
+
+[dependencies]
+sector-build.workspace = true
+sector-core.workspace = true
+sector-format.workspace = true
+sector-quant.workspace = true
+sector-codec.workspace = true
+sector-sim.workspace = true
+sector-hal.workspace = true
+
+[lints]
+workspace = true
