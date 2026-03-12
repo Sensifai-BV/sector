@@ -1,0 +1,16 @@
+[package]
+name = "sector-build"
+version.workspace = true
+edition.workspace = true
+description = "Host-side SECTOR index builder: PQ training, label optimization, criticality measurement, protection allocation, image emission"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["vector-search", "product-quantization", "index", "embedded"]
+categories = ["algorithms", "database-implementations"]
+
+[dependencies]
+sector-format.workspace = true
+sector-quant.workspace = true
+sector-codec.workspace = true
+
