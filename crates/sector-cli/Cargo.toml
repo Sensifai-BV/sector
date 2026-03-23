@@ -1,0 +1,18 @@
+[package]
+name = "sector-cli"
+version.workspace = true
+edition.workspace = true
+description = "Command-line tools for SECTOR volumes: build, inspect, query, and run the falsification suite"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+publish = false
+
+[[bin]]
+name = "sector"
+path = "src/main.rs"
+
+[dependencies]
+sector-build.workspace = true
+sector-sim.workspace = true
+sector-format.workspace = true
