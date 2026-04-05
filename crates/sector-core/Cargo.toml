@@ -1,0 +1,23 @@
+[package]
+name = "sector-core"
+version.workspace = true
+edition.workspace = true
+description = "Heapless no_std query engine for SECTOR: two-stage PQ retrieval, append path, scrub and repair"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["vector-search", "no-std", "embedded", "ann", "product-quantization"]
+categories = ["database-implementations", "embedded", "no-std::no-alloc"]
+
+[dependencies]
+sector-hal.workspace = true
+sector-quant.workspace = true
+sector-codec.workspace = true
+sector-format.workspace = true
+
+
+[features]
+default = []
+# Off by default so the bare-metal build pays nothing: per-phase cycle and
+# byte-traffic counters feeding the energy model (report P1).
+metrics = []
