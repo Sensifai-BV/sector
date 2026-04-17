@@ -1,0 +1,15 @@
+[package]
+name = "sector-format"
+version.workspace = true
+edition.workspace = true
+description = "On-flash byte layout for SECTOR volumes: manifest, region descriptors, protection groups, codebook and payload blocks"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["no-std", "embedded", "format", "storage", "vector-search"]
+categories = ["encoding", "no-std::no-alloc", "embedded"]
+
+[dependencies]
+sector-codec.workspace = true
+sector-quant.workspace = true
+
