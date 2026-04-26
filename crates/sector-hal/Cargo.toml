@@ -1,0 +1,13 @@
+[package]
+name = "sector-hal"
+version.workspace = true
+edition.workspace = true
+description = "Hardware abstraction traits (NOR flash, execute-in-place window, clock, instrumentation) for the SECTOR edge vector engine"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["no-std", "embedded", "flash", "hal", "vector-search"]
+categories = ["embedded", "no-std::no-alloc", "hardware-support"]
+
+[dependencies]
+
