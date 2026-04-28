@@ -1,0 +1,17 @@
+[package]
+name = "sector-quant"
+version.workspace = true
+edition.workspace = true
+description = "Integer-only product quantization: bounded fixed-point codebooks, ADC tables, integer FWHT rotation"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["quantization", "no-std", "embedded", "vector-search", "simd"]
+categories = ["algorithms", "no-std::no-alloc", "embedded"]
+
+[dependencies]
+
+[features]
+# Non-inlined wrappers exported for `make asm-check`. Never enabled in a
+# device build.
+asm-probe = []
