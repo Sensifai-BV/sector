@@ -1,0 +1,18 @@
+[package]
+name = "sector-sim"
+version.workspace = true
+edition.workspace = true
+description = "Fault-injecting flash simulator and claim-validation harness for SECTOR"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+publish = false
+
+[dependencies]
+sector-hal.workspace = true
+sector-core.workspace = true
+sector-build.workspace = true
+sector-format.workspace = true
+sector-quant.workspace = true
+sector-codec.workspace = true
+
