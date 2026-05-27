@@ -1,0 +1,43 @@
+{
+ "measurement": "baseline_availability",
+ "host": "rasp-sector (Raspberry Pi 4B, Ubuntu 24.04, aarch64)",
+ "engines": [
+  {
+   "engine": "sqlite-vec",
+   "version": "v0.1.9",
+   "usable": true,
+   "kind": "exact brute-force scan (vec0 virtual table)",
+   "note": "loadable SQLite extension, pure C. No ANN index \u2014 vec0 scans exhaustively, so it is an exact baseline, not an approximate one."
+  },
+  {
+   "engine": "usearch",
+   "version": "2.26.0",
+   "usable": true,
+   "kind": "HNSW graph",
+   "note": "pip wheel installed on aarch64. Tunable via connectivity/expansion for a recall-speed curve."
+  },
+  {
+   "engine": "lancedb",
+   "version": "0.36.0",
+   "usable": true,
+   "kind": "Lance columnar format with IVF_PQ index",
+   "note": "pip wheel installed on aarch64. Closest architectural comparator: also PQ-based, also disk-oriented."
+  },
+  {
+   "engine": "qdrant",
+   "version": "client 1.19.0",
+   "usable": true,
+   "kind": "local in-memory mode",
+   "caveat": "IMPORTANT: local mode is a NumPy exact-scan reimplementation, NOT the Rust HNSW server engine. Any number from it describes the client's fallback, not Qdrant. Reported as such or excluded; the server binary needs a GitHub release download, and GitHub is unreachable from this network.",
+   "note": "server binary unavailable: api.github.com returns no response from this host"
+  },
+  {
+   "engine": "DiskANN",
+   "version": null,
+   "usable": false,
+   "kind": "disk-resident Vamana graph",
+   "reason": "no aarch64 wheel on PyPI ('No matching distribution found for diskannpy'). A source build needs Intel MKL, which has no aarch64 target. Not benchmarked; not substituted."
+  }
+ ],
+ "summary": "4 of 5 installed and smoke-tested end to end. DiskANN is unavailable on aarch64 and is reported as such rather than replaced by a stand-in. Qdrant is installed but its local mode is not its engine."
+}
