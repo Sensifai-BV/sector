@@ -1,0 +1,239 @@
+{
+ "measurement": "baselines",
+ "dataset": "/home/sensifai/sector-work/datasets/sift/sift_base.fvecs",
+ "config": {
+  "d": 128,
+  "n": 100000,
+  "queries": 200,
+  "k_values": [
+   1,
+   10,
+   100
+  ],
+  "k_max": 100
+ },
+ "ground_truth": "recomputed exactly for the subset",
+ "results": [
+  {
+   "engine": "sqlite-vec",
+   "kind": "exact brute-force scan (vec0)",
+   "params": {},
+   "build_seconds": 9.14665579099983,
+   "queries": 200,
+   "latency_ms": {
+    "p50": 143.22888900005637,
+    "p95": 144.7827590000088,
+    "p99": 145.0837969996428
+   },
+   "qps": 6.980518922512299,
+   "recall": {
+    "@1": 1.0,
+    "@10": 1.0,
+    "@100": 0.99995
+   },
+   "index_bytes": 53702656,
+   "peak_rss_bytes": 600592384,
+   "note": "No ANN index: vec0 scans every row, so recall is exact by construction."
+  },
+  {
+   "engine": "usearch",
+   "kind": "HNSW graph",
+   "params": {
+    "connectivity": 16,
+    "expansion_search": 64
+   },
+   "build_seconds": 60.92108820500016,
+   "queries": 200,
+   "latency_ms": {
+    "p50": 1.465591999476601,
+    "p95": 1.6822039997350657,
+    "p99": 1.76813000052789
+   },
+   "qps": 706.0663853993473,
+   "recall": {
+    "@1": 0.99,
+    "@10": 0.9945000000000003,
+    "@100": 0.9643499999999997
+   },
+   "index_bytes": 85284816,
+   "peak_rss_bytes": 600592384,
+   "note": ""
+  },
+  {
+   "engine": "usearch",
+   "kind": "HNSW graph",
+   "params": {
+    "connectivity": 16,
+    "expansion_search": 128
+   },
+   "build_seconds": 60.92108820500016,
+   "queries": 200,
+   "latency_ms": {
+    "p50": 1.6940369996518712,
+    "p95": 1.9247780001023784,
+    "p99": 1.9972410000264063
+   },
+   "qps": 612.6570905303352,
+   "recall": {
+    "@1": 0.995,
+    "@10": 0.9970000000000002,
+    "@100": 0.9801499999999993
+   },
+   "index_bytes": 85284816,
+   "peak_rss_bytes": 600592384,
+   "note": ""
+  },
+  {
+   "engine": "usearch",
+   "kind": "HNSW graph",
+   "params": {
+    "connectivity": 16,
+    "expansion_search": 256
+   },
+   "build_seconds": 60.92108820500016,
+   "queries": 200,
+   "latency_ms": {
+    "p50": 2.622406999762461,
+    "p95": 3.0810919997747988,
+    "p99": 3.2262400000035996
+   },
+   "qps": 396.46806268065393,
+   "recall": {
+    "@1": 1.0,
+    "@10": 0.9995,
+    "@100": 0.99645
+   },
+   "index_bytes": 85284816,
+   "peak_rss_bytes": 600592384,
+   "note": ""
+  },
+  {
+   "engine": "lancedb",
+   "kind": "Lance columnar + IVF_PQ",
+   "params": {
+    "num_partitions": 316,
+    "num_sub_vectors": 16,
+    "nprobes": 1
+   },
+   "build_seconds": 266.64980224900046,
+   "queries": 200,
+   "latency_ms": {
+    "p50": 16.707944999325264,
+    "p95": 18.10137000029499,
+    "p99": 18.610037000144075
+   },
+   "qps": 59.597882508019374,
+   "recall": {
+    "@1": 0.525,
+    "@10": 0.4055,
+    "@100": 0.3056500000000001
+   },
+   "index_bytes": 53517777,
+   "peak_rss_bytes": 600592384,
+   "note": ""
+  },
+  {
+   "engine": "lancedb",
+   "kind": "Lance columnar + IVF_PQ",
+   "params": {
+    "num_partitions": 316,
+    "num_sub_vectors": 16,
+    "nprobes": 4
+   },
+   "build_seconds": 266.64980224900046,
+   "queries": 200,
+   "latency_ms": {
+    "p50": 17.148185000223748,
+    "p95": 18.7621670002045,
+    "p99": 19.177870999556035
+   },
+   "qps": 58.17347871962586,
+   "recall": {
+    "@1": 0.855,
+    "@10": 0.7469999999999998,
+    "@100": 0.5697499999999999
+   },
+   "index_bytes": 53517777,
+   "peak_rss_bytes": 600592384,
+   "note": ""
+  },
+  {
+   "engine": "lancedb",
+   "kind": "Lance columnar + IVF_PQ",
+   "params": {
+    "num_partitions": 316,
+    "num_sub_vectors": 16,
+    "nprobes": 16
+   },
+   "build_seconds": 266.64980224900046,
+   "queries": 200,
+   "latency_ms": {
+    "p50": 19.093517999863252,
+    "p95": 20.548907999909716,
+    "p99": 21.077833000163082
+   },
+   "qps": 52.474459327437295,
+   "recall": {
+    "@1": 0.965,
+    "@10": 0.9595000000000006,
+    "@100": 0.6997999999999999
+   },
+   "index_bytes": 53517777,
+   "peak_rss_bytes": 600592384,
+   "note": ""
+  },
+  {
+   "engine": "lancedb",
+   "kind": "Lance columnar + IVF_PQ",
+   "params": {
+    "num_partitions": 316,
+    "num_sub_vectors": 16,
+    "nprobes": 64
+   },
+   "build_seconds": 266.64980224900046,
+   "queries": 200,
+   "latency_ms": {
+    "p50": 25.34196300075564,
+    "p95": 27.2892770008184,
+    "p99": 27.75366700006998
+   },
+   "qps": 39.3940981437733,
+   "recall": {
+    "@1": 1.0,
+    "@10": 0.9955000000000002,
+    "@100": 0.7186999999999997
+   },
+   "index_bytes": 53517777,
+   "peak_rss_bytes": 600592384,
+   "note": ""
+  },
+  {
+   "engine": "qdrant (local mode)",
+   "kind": "NumPy exact scan in the Python client",
+   "params": {},
+   "build_seconds": 101.8557989030005,
+   "queries": 200,
+   "latency_ms": {
+    "p50": 243.68349999986094,
+    "p95": 269.7196110002551,
+    "p99": 289.505091999672
+   },
+   "qps": 4.068435658913921,
+   "recall": {
+    "@1": 1.0,
+    "@10": 1.0,
+    "@100": 0.9999000000000001
+   },
+   "index_bytes": 0,
+   "peak_rss_bytes": 686706688,
+   "note": "NOT the Qdrant engine. Local mode is a client-side exact-scan reimplementation; the product is a Rust HNSW server, whose binary could not be downloaded from this host."
+  }
+ ],
+ "failures": [],
+ "unavailable": [
+  {
+   "engine": "DiskANN",
+   "reason": "no aarch64 wheel on PyPI; source build needs Intel MKL, which has no aarch64 target. Not benchmarked, not substituted."
+  }
+ ]
+}
