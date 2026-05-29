@@ -1,0 +1,10 @@
+chip,arch,target,build,bench_bytes,measure_flash_bytes,note
+esp32c2,riscv,riscv32imc-unknown-none-elf,PASS,1096648,965964,
+esp32c3,riscv,riscv32imc-unknown-none-elf,PASS,1146296,1014376,
+esp32c5,riscv,riscv32imac-unknown-none-elf,PASS,1054576,921756,
+esp32c6,riscv,riscv32imac-unknown-none-elf,PASS,1316428,1181512,
+esp32c61,riscv,riscv32imac-unknown-none-elf,PASS,1006756,869412,
+esp32h2,riscv,riscv32imac-unknown-none-elf,PASS,1140800,1007504,
+esp32,xtensa,xtensa-esp32-none-elf,PASS,2090000,1934772,
+esp32s2,xtensa,xtensa-esp32s2-none-elf,PASS,2055400,1935416,
+esp32s3,xtensa,xtensa-esp32s3-none-elf,PASS,2316304,2162016,
