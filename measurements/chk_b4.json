@@ -1,0 +1,68 @@
+{
+  "measurement": "budget",
+  "dataset": "sift_slice/sift_base_slice.fvecs",
+  "config": {
+    "d": 128,
+    "m": 16,
+    "b": 4,
+    "n": 5000,
+    "r": 100,
+    "k": 10,
+    "seed": 42,
+    "train_n": 5000
+  },
+  "claims": [
+    {
+      "name": "codebook size",
+      "predicted": 2048.0,
+      "measured": 2048.0,
+      "unit": "bytes",
+      "relative_error": 0.0,
+      "tolerance": 0.0,
+      "verdict": "holds"
+    },
+    {
+      "name": "payload per vector",
+      "predicted": 8.0,
+      "measured": 8.0,
+      "unit": "bytes",
+      "relative_error": 0.0,
+      "tolerance": 0.0,
+      "verdict": "holds"
+    },
+    {
+      "name": "payload stored",
+      "predicted": 40000.0,
+      "measured": 40000.0,
+      "unit": "bytes",
+      "relative_error": 0.0,
+      "tolerance": 0.0,
+      "verdict": "holds"
+    },
+    {
+      "name": "codes array resident",
+      "predicted": 80000.0,
+      "measured": 80000.0,
+      "unit": "bytes",
+      "relative_error": 0.0,
+      "tolerance": 0.0,
+      "verdict": "holds"
+    }
+  ],
+  "disk": {
+    "codebook_bytes": 2048,
+    "codebook_replica_bytes": 2048,
+    "payload_blocks": 79,
+    "rerank_blocks": 1250,
+    "crc_bytes": 5316,
+    "image_bytes": 689860,
+    "stored_bytes_per_vector": 137.972,
+    "protection_fraction": 0.010675,
+    "note": "protection = one codebook replica + out-of-line CRC arrays; the replica is a fixed cost independent of N, so its share falls as N grows"
+  },
+  "memory": {
+    "peak_rss_bytes": null,
+    "note": "host process RSS, which includes the resident corpus and the builder's working set \u2014 NOT the device workspace figure. The no_std workspace claim is checked by sector-core's const-fn assertions, not by this number.",
+    "query_sink": 6400
+  }
+}
