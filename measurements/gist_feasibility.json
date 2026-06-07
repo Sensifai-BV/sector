@@ -1,0 +1,1125 @@
+{
+ "dimension": 960,
+ "note": "codebook is 2^b * D bytes and is independent of m; m sets payload bytes and ADC table size",
+ "T0": {
+  "ram_budget": 196608,
+  "grid": [
+   {
+    "m": 8,
+    "b": 4,
+    "ds": 120,
+    "codebook": 15360,
+    "adc_table": 256,
+    "payload": 4,
+    "fixed": 27808,
+    "fits": true,
+    "resident_vectors": 42200
+   },
+   {
+    "m": 8,
+    "b": 6,
+    "ds": 120,
+    "codebook": 61440,
+    "adc_table": 1024,
+    "payload": 6,
+    "fixed": 74656,
+    "fits": true,
+    "resident_vectors": 20325
+   },
+   {
+    "m": 8,
+    "b": 8,
+    "ds": 120,
+    "codebook": 245760,
+    "adc_table": 4096,
+    "payload": 8,
+    "fixed": 262048,
+    "fits": false,
+    "resident_vectors": 0
+   },
+   {
+    "m": 10,
+    "b": 4,
+    "ds": 96,
+    "codebook": 15360,
+    "adc_table": 320,
+    "payload": 5,
+    "fixed": 27872,
+    "fits": true,
+    "resident_vectors": 33747
+   },
+   {
+    "m": 10,
+    "b": 6,
+    "ds": 96,
+    "codebook": 61440,
+    "adc_table": 1280,
+    "payload": 7,
+    "fixed": 74912,
+    "fits": true,
+    "resident_vectors": 17385
+   },
+   {
+    "m": 10,
+    "b": 8,
+    "ds": 96,
+    "codebook": 245760,
+    "adc_table": 5120,
+    "payload": 10,
+    "fixed": 263072,
+    "fits": false,
+    "resident_vectors": 0
+   },
+   {
+    "m": 12,
+    "b": 4,
+    "ds": 80,
+    "codebook": 15360,
+    "adc_table": 384,
+    "payload": 6,
+    "fixed": 27936,
+    "fits": true,
+    "resident_vectors": 28112
+   },
+   {
+    "m": 12,
+    "b": 6,
+    "ds": 80,
+    "codebook": 61440,
+    "adc_table": 1536,
+    "payload": 9,
+    "fixed": 75168,
+    "fits": true,
+    "resident_vectors": 13493
+   },
+   {
+    "m": 12,
+    "b": 8,
+    "ds": 80,
+    "codebook": 245760,
+    "adc_table": 6144,
+    "payload": 12,
+    "fixed": 264096,
+    "fits": false,
+    "resident_vectors": 0
+   },
+   {
+    "m": 15,
+    "b": 4,
+    "ds": 64,
+    "codebook": 15360,
+    "adc_table": 480,
+    "payload": 7,
+    "fixed": 28032,
+    "fits": true,
+    "resident_vectors": 24082
+   },
+   {
+    "m": 15,
+    "b": 6,
+    "ds": 64,
+    "codebook": 61440,
+    "adc_table": 1920,
+    "payload": 11,
+    "fixed": 75552,
+    "fits": true,
+    "resident_vectors": 11005
+   },
+   {
+    "m": 15,
+    "b": 8,
+    "ds": 64,
+    "codebook": 245760,
+    "adc_table": 7680,
+    "payload": 15,
+    "fixed": 265632,
+    "fits": false,
+    "resident_vectors": 0
+   },
+   {
+    "m": 16,
+    "b": 4,
+    "ds": 60,
+    "codebook": 15360,
+    "adc_table": 512,
+    "payload": 8,
+    "fixed": 28064,
+    "fits": true,
+    "resident_vectors": 21068
+   },
+   {
+    "m": 16,
+    "b": 6,
+    "ds": 60,
+    "codebook": 61440,
+    "adc_table": 2048,
+    "payload": 12,
+    "fixed": 75680,
+    "fits": true,
+    "resident_vectors": 10077
+   },
+   {
+    "m": 16,
+    "b": 8,
+    "ds": 60,
+    "codebook": 245760,
+    "adc_table": 8192,
+    "payload": 16,
+    "fixed": 266144,
+    "fits": false,
+    "resident_vectors": 0
+   },
+   {
+    "m": 20,
+    "b": 4,
+    "ds": 48,
+    "codebook": 15360,
+    "adc_table": 640,
+    "payload": 10,
+    "fixed": 28192,
+    "fits": true,
+    "resident_vectors": 16841
+   },
+   {
+    "m": 20,
+    "b": 6,
+    "ds": 48,
+    "codebook": 61440,
+    "adc_table": 2560,
+    "payload": 15,
+    "fixed": 76192,
+    "fits": true,
+    "resident_vectors": 8027
+   },
+   {
+    "m": 20,
+    "b": 8,
+    "ds": 48,
+    "codebook": 245760,
+    "adc_table": 10240,
+    "payload": 20,
+    "fixed": 268192,
+    "fits": false,
+    "resident_vectors": 0
+   },
+   {
+    "m": 24,
+    "b": 4,
+    "ds": 40,
+    "codebook": 15360,
+    "adc_table": 768,
+    "payload": 12,
+    "fixed": 28320,
+    "fits": true,
+    "resident_vectors": 14024
+   },
+   {
+    "m": 24,
+    "b": 6,
+    "ds": 40,
+    "codebook": 61440,
+    "adc_table": 3072,
+    "payload": 18,
+    "fixed": 76704,
+    "fits": true,
+    "resident_vectors": 6661
+   },
+   {
+    "m": 24,
+    "b": 8,
+    "ds": 40,
+    "codebook": 245760,
+    "adc_table": 12288,
+    "payload": 24,
+    "fixed": 270240,
+    "fits": false,
+    "resident_vectors": 0
+   },
+   {
+    "m": 30,
+    "b": 4,
+    "ds": 32,
+    "codebook": 15360,
+    "adc_table": 960,
+    "payload": 15,
+    "fixed": 28512,
+    "fits": true,
+    "resident_vectors": 11206
+   },
+   {
+    "m": 30,
+    "b": 6,
+    "ds": 32,
+    "codebook": 61440,
+    "adc_table": 3840,
+    "payload": 22,
+    "fixed": 77472,
+    "fits": true,
+    "resident_vectors": 5415
+   },
+   {
+    "m": 30,
+    "b": 8,
+    "ds": 32,
+    "codebook": 245760,
+    "adc_table": 15360,
+    "payload": 30,
+    "fixed": 273312,
+    "fits": false,
+    "resident_vectors": 0
+   },
+   {
+    "m": 32,
+    "b": 4,
+    "ds": 30,
+    "codebook": 15360,
+    "adc_table": 1024,
+    "payload": 16,
+    "fixed": 28576,
+    "fits": true,
+    "resident_vectors": 10502
+   },
+   {
+    "m": 32,
+    "b": 6,
+    "ds": 30,
+    "codebook": 61440,
+    "adc_table": 4096,
+    "payload": 24,
+    "fixed": 77728,
+    "fits": true,
+    "resident_vectors": 4953
+   },
+   {
+    "m": 32,
+    "b": 8,
+    "ds": 30,
+    "codebook": 245760,
+    "adc_table": 16384,
+    "payload": 32,
+    "fixed": 274336,
+    "fits": false,
+    "resident_vectors": 0
+   },
+   {
+    "m": 40,
+    "b": 4,
+    "ds": 24,
+    "codebook": 15360,
+    "adc_table": 1280,
+    "payload": 20,
+    "fixed": 28832,
+    "fits": true,
+    "resident_vectors": 8388
+   },
+   {
+    "m": 40,
+    "b": 6,
+    "ds": 24,
+    "codebook": 61440,
+    "adc_table": 5120,
+    "payload": 30,
+    "fixed": 78752,
+    "fits": true,
+    "resident_vectors": 3928
+   },
+   {
+    "m": 40,
+    "b": 8,
+    "ds": 24,
+    "codebook": 245760,
+    "adc_table": 20480,
+    "payload": 40,
+    "fixed": 278432,
+    "fits": false,
+    "resident_vectors": 0
+   },
+   {
+    "m": 48,
+    "b": 4,
+    "ds": 20,
+    "codebook": 15360,
+    "adc_table": 1536,
+    "payload": 24,
+    "fixed": 29088,
+    "fits": true,
+    "resident_vectors": 6980
+   },
+   {
+    "m": 48,
+    "b": 6,
+    "ds": 20,
+    "codebook": 61440,
+    "adc_table": 6144,
+    "payload": 36,
+    "fixed": 79776,
+    "fits": true,
+    "resident_vectors": 3245
+   },
+   {
+    "m": 48,
+    "b": 8,
+    "ds": 20,
+    "codebook": 245760,
+    "adc_table": 24576,
+    "payload": 48,
+    "fixed": 282528,
+    "fits": false,
+    "resident_vectors": 0
+   },
+   {
+    "m": 60,
+    "b": 4,
+    "ds": 16,
+    "codebook": 15360,
+    "adc_table": 1920,
+    "payload": 30,
+    "fixed": 29472,
+    "fits": true,
+    "resident_vectors": 5571
+   },
+   {
+    "m": 60,
+    "b": 6,
+    "ds": 16,
+    "codebook": 61440,
+    "adc_table": 7680,
+    "payload": 45,
+    "fixed": 81312,
+    "fits": true,
+    "resident_vectors": 2562
+   },
+   {
+    "m": 60,
+    "b": 8,
+    "ds": 16,
+    "codebook": 245760,
+    "adc_table": 30720,
+    "payload": 60,
+    "fixed": 288672,
+    "fits": false,
+    "resident_vectors": 0
+   },
+   {
+    "m": 64,
+    "b": 4,
+    "ds": 15,
+    "codebook": 15360,
+    "adc_table": 2048,
+    "payload": 32,
+    "fixed": 29600,
+    "fits": true,
+    "resident_vectors": 5219
+   },
+   {
+    "m": 64,
+    "b": 6,
+    "ds": 15,
+    "codebook": 61440,
+    "adc_table": 8192,
+    "payload": 48,
+    "fixed": 81824,
+    "fits": true,
+    "resident_vectors": 2391
+   },
+   {
+    "m": 64,
+    "b": 8,
+    "ds": 15,
+    "codebook": 245760,
+    "adc_table": 32768,
+    "payload": 64,
+    "fixed": 290720,
+    "fits": false,
+    "resident_vectors": 0
+   },
+   {
+    "m": 80,
+    "b": 4,
+    "ds": 12,
+    "codebook": 15360,
+    "adc_table": 2560,
+    "payload": 40,
+    "fixed": 30112,
+    "fits": true,
+    "resident_vectors": 4162
+   },
+   {
+    "m": 80,
+    "b": 6,
+    "ds": 12,
+    "codebook": 61440,
+    "adc_table": 10240,
+    "payload": 60,
+    "fixed": 83872,
+    "fits": true,
+    "resident_vectors": 1878
+   },
+   {
+    "m": 80,
+    "b": 8,
+    "ds": 12,
+    "codebook": 245760,
+    "adc_table": 40960,
+    "payload": 80,
+    "fixed": 298912,
+    "fits": false,
+    "resident_vectors": 0
+   },
+   {
+    "m": 96,
+    "b": 4,
+    "ds": 10,
+    "codebook": 15360,
+    "adc_table": 3072,
+    "payload": 48,
+    "fixed": 30624,
+    "fits": true,
+    "resident_vectors": 3458
+   },
+   {
+    "m": 96,
+    "b": 6,
+    "ds": 10,
+    "codebook": 61440,
+    "adc_table": 12288,
+    "payload": 72,
+    "fixed": 85920,
+    "fits": true,
+    "resident_vectors": 1537
+   },
+   {
+    "m": 96,
+    "b": 8,
+    "ds": 10,
+    "codebook": 245760,
+    "adc_table": 49152,
+    "payload": 96,
+    "fixed": 307104,
+    "fits": false,
+    "resident_vectors": 0
+   },
+   {
+    "m": 120,
+    "b": 4,
+    "ds": 8,
+    "codebook": 15360,
+    "adc_table": 3840,
+    "payload": 60,
+    "fixed": 31392,
+    "fits": true,
+    "resident_vectors": 2753
+   },
+   {
+    "m": 120,
+    "b": 6,
+    "ds": 8,
+    "codebook": 61440,
+    "adc_table": 15360,
+    "payload": 90,
+    "fixed": 88992,
+    "fits": true,
+    "resident_vectors": 1195
+   },
+   {
+    "m": 120,
+    "b": 8,
+    "ds": 8,
+    "codebook": 245760,
+    "adc_table": 61440,
+    "payload": 120,
+    "fixed": 319392,
+    "fits": false,
+    "resident_vectors": 0
+   }
+  ]
+ },
+ "T1": {
+  "ram_budget": 6291456,
+  "grid": [
+   {
+    "m": 8,
+    "b": 4,
+    "ds": 120,
+    "codebook": 15360,
+    "adc_table": 512,
+    "payload": 4,
+    "fixed": 52640,
+    "fits": true,
+    "resident_vectors": 1559704
+   },
+   {
+    "m": 8,
+    "b": 6,
+    "ds": 120,
+    "codebook": 61440,
+    "adc_table": 2048,
+    "payload": 6,
+    "fixed": 100256,
+    "fits": true,
+    "resident_vectors": 1031866
+   },
+   {
+    "m": 8,
+    "b": 8,
+    "ds": 120,
+    "codebook": 245760,
+    "adc_table": 8192,
+    "payload": 8,
+    "fixed": 290720,
+    "fits": true,
+    "resident_vectors": 750092
+   },
+   {
+    "m": 10,
+    "b": 4,
+    "ds": 96,
+    "codebook": 15360,
+    "adc_table": 640,
+    "payload": 5,
+    "fixed": 52768,
+    "fits": true,
+    "resident_vectors": 1247737
+   },
+   {
+    "m": 10,
+    "b": 6,
+    "ds": 96,
+    "codebook": 61440,
+    "adc_table": 2560,
+    "payload": 7,
+    "fixed": 100768,
+    "fits": true,
+    "resident_vectors": 884384
+   },
+   {
+    "m": 10,
+    "b": 8,
+    "ds": 96,
+    "codebook": 245760,
+    "adc_table": 10240,
+    "payload": 10,
+    "fixed": 292768,
+    "fits": true,
+    "resident_vectors": 599868
+   },
+   {
+    "m": 12,
+    "b": 4,
+    "ds": 80,
+    "codebook": 15360,
+    "adc_table": 768,
+    "payload": 6,
+    "fixed": 52896,
+    "fits": true,
+    "resident_vectors": 1039760
+   },
+   {
+    "m": 12,
+    "b": 6,
+    "ds": 80,
+    "codebook": 61440,
+    "adc_table": 3072,
+    "payload": 9,
+    "fixed": 101280,
+    "fits": true,
+    "resident_vectors": 687797
+   },
+   {
+    "m": 12,
+    "b": 8,
+    "ds": 80,
+    "codebook": 245760,
+    "adc_table": 12288,
+    "payload": 12,
+    "fixed": 294816,
+    "fits": true,
+    "resident_vectors": 499720
+   },
+   {
+    "m": 15,
+    "b": 4,
+    "ds": 64,
+    "codebook": 15360,
+    "adc_table": 960,
+    "payload": 7,
+    "fixed": 53088,
+    "fits": true,
+    "resident_vectors": 891195
+   },
+   {
+    "m": 15,
+    "b": 6,
+    "ds": 64,
+    "codebook": 61440,
+    "adc_table": 3840,
+    "payload": 11,
+    "fixed": 102048,
+    "fits": true,
+    "resident_vectors": 562673
+   },
+   {
+    "m": 15,
+    "b": 8,
+    "ds": 64,
+    "codebook": 245760,
+    "adc_table": 15360,
+    "payload": 15,
+    "fixed": 297888,
+    "fits": true,
+    "resident_vectors": 399571
+   },
+   {
+    "m": 16,
+    "b": 4,
+    "ds": 60,
+    "codebook": 15360,
+    "adc_table": 1024,
+    "payload": 8,
+    "fixed": 53152,
+    "fits": true,
+    "resident_vectors": 779788
+   },
+   {
+    "m": 16,
+    "b": 6,
+    "ds": 60,
+    "codebook": 61440,
+    "adc_table": 4096,
+    "payload": 12,
+    "fixed": 102304,
+    "fits": true,
+    "resident_vectors": 515762
+   },
+   {
+    "m": 16,
+    "b": 8,
+    "ds": 60,
+    "codebook": 245760,
+    "adc_table": 16384,
+    "payload": 16,
+    "fixed": 298912,
+    "fits": true,
+    "resident_vectors": 374534
+   },
+   {
+    "m": 20,
+    "b": 4,
+    "ds": 48,
+    "codebook": 15360,
+    "adc_table": 1280,
+    "payload": 10,
+    "fixed": 53408,
+    "fits": true,
+    "resident_vectors": 623804
+   },
+   {
+    "m": 20,
+    "b": 6,
+    "ds": 48,
+    "codebook": 61440,
+    "adc_table": 5120,
+    "payload": 15,
+    "fixed": 103328,
+    "fits": true,
+    "resident_vectors": 412541
+   },
+   {
+    "m": 20,
+    "b": 8,
+    "ds": 48,
+    "codebook": 245760,
+    "adc_table": 20480,
+    "payload": 20,
+    "fixed": 303008,
+    "fits": true,
+    "resident_vectors": 299422
+   },
+   {
+    "m": 24,
+    "b": 4,
+    "ds": 40,
+    "codebook": 15360,
+    "adc_table": 1536,
+    "payload": 12,
+    "fixed": 53664,
+    "fits": true,
+    "resident_vectors": 519816
+   },
+   {
+    "m": 24,
+    "b": 6,
+    "ds": 40,
+    "codebook": 61440,
+    "adc_table": 6144,
+    "payload": 18,
+    "fixed": 104352,
+    "fits": true,
+    "resident_vectors": 343728
+   },
+   {
+    "m": 24,
+    "b": 8,
+    "ds": 40,
+    "codebook": 245760,
+    "adc_table": 24576,
+    "payload": 24,
+    "fixed": 307104,
+    "fits": true,
+    "resident_vectors": 249348
+   },
+   {
+    "m": 30,
+    "b": 4,
+    "ds": 32,
+    "codebook": 15360,
+    "adc_table": 1920,
+    "payload": 15,
+    "fixed": 54048,
+    "fits": true,
+    "resident_vectors": 415827
+   },
+   {
+    "m": 30,
+    "b": 6,
+    "ds": 32,
+    "codebook": 61440,
+    "adc_table": 7680,
+    "payload": 22,
+    "fixed": 105888,
+    "fits": true,
+    "resident_vectors": 281162
+   },
+   {
+    "m": 30,
+    "b": 8,
+    "ds": 32,
+    "codebook": 245760,
+    "adc_table": 30720,
+    "payload": 30,
+    "fixed": 313248,
+    "fits": true,
+    "resident_vectors": 199273
+   },
+   {
+    "m": 32,
+    "b": 4,
+    "ds": 30,
+    "codebook": 15360,
+    "adc_table": 2048,
+    "payload": 16,
+    "fixed": 54176,
+    "fits": true,
+    "resident_vectors": 389830
+   },
+   {
+    "m": 32,
+    "b": 6,
+    "ds": 30,
+    "codebook": 61440,
+    "adc_table": 8192,
+    "payload": 24,
+    "fixed": 106400,
+    "fits": true,
+    "resident_vectors": 257710
+   },
+   {
+    "m": 32,
+    "b": 8,
+    "ds": 30,
+    "codebook": 245760,
+    "adc_table": 32768,
+    "payload": 32,
+    "fixed": 315296,
+    "fits": true,
+    "resident_vectors": 186755
+   },
+   {
+    "m": 40,
+    "b": 4,
+    "ds": 24,
+    "codebook": 15360,
+    "adc_table": 2560,
+    "payload": 20,
+    "fixed": 54688,
+    "fits": true,
+    "resident_vectors": 311838
+   },
+   {
+    "m": 40,
+    "b": 6,
+    "ds": 24,
+    "codebook": 61440,
+    "adc_table": 10240,
+    "payload": 30,
+    "fixed": 108448,
+    "fits": true,
+    "resident_vectors": 206100
+   },
+   {
+    "m": 40,
+    "b": 8,
+    "ds": 24,
+    "codebook": 245760,
+    "adc_table": 40960,
+    "payload": 40,
+    "fixed": 323488,
+    "fits": true,
+    "resident_vectors": 149199
+   },
+   {
+    "m": 48,
+    "b": 4,
+    "ds": 20,
+    "codebook": 15360,
+    "adc_table": 3072,
+    "payload": 24,
+    "fixed": 55200,
+    "fits": true,
+    "resident_vectors": 259844
+   },
+   {
+    "m": 48,
+    "b": 6,
+    "ds": 20,
+    "codebook": 61440,
+    "adc_table": 12288,
+    "payload": 36,
+    "fixed": 110496,
+    "fits": true,
+    "resident_vectors": 171693
+   },
+   {
+    "m": 48,
+    "b": 8,
+    "ds": 20,
+    "codebook": 245760,
+    "adc_table": 49152,
+    "payload": 48,
+    "fixed": 331680,
+    "fits": true,
+    "resident_vectors": 124162
+   },
+   {
+    "m": 60,
+    "b": 4,
+    "ds": 16,
+    "codebook": 15360,
+    "adc_table": 3840,
+    "payload": 30,
+    "fixed": 55968,
+    "fits": true,
+    "resident_vectors": 207849
+   },
+   {
+    "m": 60,
+    "b": 6,
+    "ds": 16,
+    "codebook": 61440,
+    "adc_table": 15360,
+    "payload": 45,
+    "fixed": 113568,
+    "fits": true,
+    "resident_vectors": 137286
+   },
+   {
+    "m": 60,
+    "b": 8,
+    "ds": 16,
+    "codebook": 245760,
+    "adc_table": 61440,
+    "payload": 60,
+    "fixed": 343968,
+    "fits": true,
+    "resident_vectors": 99124
+   },
+   {
+    "m": 64,
+    "b": 4,
+    "ds": 15,
+    "codebook": 15360,
+    "adc_table": 4096,
+    "payload": 32,
+    "fixed": 56224,
+    "fits": true,
+    "resident_vectors": 194851
+   },
+   {
+    "m": 64,
+    "b": 6,
+    "ds": 15,
+    "codebook": 61440,
+    "adc_table": 16384,
+    "payload": 48,
+    "fixed": 114592,
+    "fits": true,
+    "resident_vectors": 128684
+   },
+   {
+    "m": 64,
+    "b": 8,
+    "ds": 15,
+    "codebook": 245760,
+    "adc_table": 65536,
+    "payload": 64,
+    "fixed": 348064,
+    "fits": true,
+    "resident_vectors": 92865
+   },
+   {
+    "m": 80,
+    "b": 4,
+    "ds": 12,
+    "codebook": 15360,
+    "adc_table": 5120,
+    "payload": 40,
+    "fixed": 57248,
+    "fits": true,
+    "resident_vectors": 155855
+   },
+   {
+    "m": 80,
+    "b": 6,
+    "ds": 12,
+    "codebook": 61440,
+    "adc_table": 20480,
+    "payload": 60,
+    "fixed": 118688,
+    "fits": true,
+    "resident_vectors": 102879
+   },
+   {
+    "m": 80,
+    "b": 8,
+    "ds": 12,
+    "codebook": 245760,
+    "adc_table": 81920,
+    "payload": 80,
+    "fixed": 364448,
+    "fits": true,
+    "resident_vectors": 74087
+   },
+   {
+    "m": 96,
+    "b": 4,
+    "ds": 10,
+    "codebook": 15360,
+    "adc_table": 6144,
+    "payload": 48,
+    "fixed": 58272,
+    "fits": true,
+    "resident_vectors": 129858
+   },
+   {
+    "m": 96,
+    "b": 6,
+    "ds": 10,
+    "codebook": 61440,
+    "adc_table": 24576,
+    "payload": 72,
+    "fixed": 122784,
+    "fits": true,
+    "resident_vectors": 85676
+   },
+   {
+    "m": 96,
+    "b": 8,
+    "ds": 10,
+    "codebook": 245760,
+    "adc_table": 98304,
+    "payload": 96,
+    "fixed": 380832,
+    "fits": true,
+    "resident_vectors": 61569
+   },
+   {
+    "m": 120,
+    "b": 4,
+    "ds": 8,
+    "codebook": 15360,
+    "adc_table": 7680,
+    "payload": 60,
+    "fixed": 59808,
+    "fits": true,
+    "resident_vectors": 103860
+   },
+   {
+    "m": 120,
+    "b": 6,
+    "ds": 8,
+    "codebook": 61440,
+    "adc_table": 30720,
+    "payload": 90,
+    "fixed": 128928,
+    "fits": true,
+    "resident_vectors": 68472
+   },
+   {
+    "m": 120,
+    "b": 8,
+    "ds": 8,
+    "codebook": 245760,
+    "adc_table": 122880,
+    "payload": 120,
+    "fixed": 405408,
+    "fits": true,
+    "resident_vectors": 49050
+   }
+  ]
+ },
+ "codebook_by_dimension": [
+  {
+   "d": 128,
+   "codebook_b8": 32768,
+   "codebook_b4": 2048,
+   "b8_fits_t0": true
+  },
+  {
+   "d": 256,
+   "codebook_b8": 65536,
+   "codebook_b4": 4096,
+   "b8_fits_t0": true
+  },
+  {
+   "d": 512,
+   "codebook_b8": 131072,
+   "codebook_b4": 8192,
+   "b8_fits_t0": true
+  },
+  {
+   "d": 768,
+   "codebook_b8": 196608,
+   "codebook_b4": 12288,
+   "b8_fits_t0": false
+  },
+  {
+   "d": 960,
+   "codebook_b8": 245760,
+   "codebook_b4": 15360,
+   "b8_fits_t0": false
+  }
+ ],
+ "chosen": {
+  "boundary_d": {
+   "b8_fits_t0_up_to": 735,
+   "fails_from": 736
+  },
+  "points": [
+   {
+    "tier": "T0",
+    "m": 60,
+    "b": 4
+   },
+   {
+    "tier": "T0",
+    "m": 120,
+    "b": 6
+   },
+   {
+    "tier": "T1",
+    "m": 60,
+    "b": 8
+   }
+  ]
+ }
+}
