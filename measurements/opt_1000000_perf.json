@@ -1,0 +1,75 @@
+{
+  "measurement": "perf",
+  "dataset": "/home/sensifai/sector-work/datasets/sift/sift_base.fvecs",
+  "config": {
+    "d": 128,
+    "m": 16,
+    "b": 8,
+    "n": 1000000,
+    "r": 100,
+    "k": 10,
+    "seed": 42,
+    "train_n": 100000
+  },
+  "queries": 200,
+  "calibration": {
+    "clock_resolution_ns": 37,
+    "mark_overhead_ns": 48,
+    "note": "phase totals have two mark overheads subtracted"
+  },
+  "latency_ns": {
+    "median": 45872298,
+    "p95": 138823316,
+    "p99": 139042464,
+    "max": 143936204
+  },
+  "throughput_qps": 14.360889,
+  "phases": [
+    {
+      "phase": "rotate",
+      "mean_ns": 7789.700000,
+      "share_permille": 0,
+      "bytes_per_query": 0.000000,
+      "resolvable": true
+    },
+    {
+      "phase": "table",
+      "mean_ns": 167916.085000,
+      "share_permille": 2,
+      "bytes_per_query": 0.000000,
+      "resolvable": true
+    },
+    {
+      "phase": "scan",
+      "mean_ns": 69336423.145000,
+      "share_permille": 995,
+      "bytes_per_query": 16000000.000000,
+      "resolvable": true
+    },
+    {
+      "phase": "rerank",
+      "mean_ns": 90916.045000,
+      "share_permille": 1,
+      "bytes_per_query": 51200.000000,
+      "resolvable": true
+    },
+    {
+      "phase": "finalize",
+      "mean_ns": 23172.085000,
+      "share_permille": 0,
+      "bytes_per_query": 0.000000,
+      "resolvable": true
+    }
+  ],
+  "structural_claims": {
+    "table_macs_per_query": 32768,
+    "scan_ops_per_query": 16000000,
+    "note": "table build scales with 2^b*D and is independent of N; scan scales with N*m. Sweep --n to test both.",
+    "measured_scaling": "SIFT1M slice, D=128 m=16 b=8 R=100: table flat at ~8.6us across N=1000..5000 (independent of N, as claimed); scan 39/106/228us at N=1000/2500/5000 (linear in N, as claimed). Scan share rises 734 -> 934 permille over that range, so the cost model's expectation that Table and Rerank dominate does NOT hold at these corpus sizes on this host."
+  },
+  "energy_model": {
+    "form": "E = sum_phase(cycles * P_active / f) + bytes * E_per_byte",
+    "measured_here": "cycles and bytes per phase",
+    "requires_hardware": "P_active and E_per_byte — this host has no current sensor"
+  }
+}
