@@ -1,0 +1,73 @@
+{
+  "measurement": "perf",
+  "dataset": "sift_slice/sift_base_slice.fvecs",
+  "config": {
+    "d": 128,
+    "m": 16,
+    "b": 8,
+    "n": 5000,
+    "r": 100,
+    "k": 10,
+    "seed": 42
+  },
+  "queries": 60,
+  "calibration": {
+    "clock_resolution_ns": 41,
+    "mark_overhead_ns": 12,
+    "note": "phase totals have two mark overheads subtracted"
+  },
+  "latency_ns": {
+    "median": 241736,
+    "p95": 254554,
+    "p99": 273111,
+    "max": 273111
+  },
+  "throughput_qps": 4100.426273,
+  "phases": [
+    {
+      "phase": "rotate",
+      "mean_ns": 8.233333,
+      "share_permille": 0,
+      "bytes_per_query": 0.0,
+      "resolvable": false
+    },
+    {
+      "phase": "table",
+      "mean_ns": 8360.666667,
+      "share_permille": 34,
+      "bytes_per_query": 0.0,
+      "resolvable": true
+    },
+    {
+      "phase": "scan",
+      "mean_ns": 227565.583333,
+      "share_permille": 934,
+      "bytes_per_query": 80000.0,
+      "resolvable": true
+    },
+    {
+      "phase": "rerank",
+      "mean_ns": 7633.016667,
+      "share_permille": 31,
+      "bytes_per_query": 51200.0,
+      "resolvable": true
+    },
+    {
+      "phase": "finalize",
+      "mean_ns": 8.55,
+      "share_permille": 0,
+      "bytes_per_query": 0.0,
+      "resolvable": false
+    }
+  ],
+  "structural_claims": {
+    "table_macs_per_query": 32768,
+    "scan_ops_per_query": 80000,
+    "note": "table build scales with 2^b*D and is independent of N; scan scales with N*m. Sweep --n to test both."
+  },
+  "energy_model": {
+    "form": "E = sum_phase(cycles * P_active / f) + bytes * E_per_byte",
+    "measured_here": "cycles and bytes per phase",
+    "requires_hardware": "P_active and E_per_byte \u2014 this host has no current sensor"
+  }
+}
