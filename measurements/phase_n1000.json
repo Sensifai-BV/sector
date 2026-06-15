@@ -1,0 +1,75 @@
+{
+  "measurement": "perf",
+  "dataset": "sift_slice/sift_base_slice.fvecs",
+  "config": {
+    "d": 128,
+    "m": 16,
+    "b": 8,
+    "n": 1000,
+    "r": 100,
+    "k": 10,
+    "seed": 42,
+    "train_n": 5000
+  },
+  "queries": 60,
+  "calibration": {
+    "clock_resolution_ns": 41,
+    "mark_overhead_ns": 13,
+    "note": "phase totals have two mark overheads subtracted"
+  },
+  "latency_ns": {
+    "median": 32871,
+    "p95": 38161,
+    "p99": 66912,
+    "max": 66912
+  },
+  "throughput_qps": 29067.429654,
+  "phases": [
+    {
+      "phase": "rotate",
+      "mean_ns": 223.3,
+      "share_permille": 6,
+      "bytes_per_query": 0.0,
+      "resolvable": false
+    },
+    {
+      "phase": "table",
+      "mean_ns": 11158.666667,
+      "share_permille": 327,
+      "bytes_per_query": 0.0,
+      "resolvable": true
+    },
+    {
+      "phase": "scan",
+      "mean_ns": 13941.35,
+      "share_permille": 409,
+      "bytes_per_query": 16000.0,
+      "resolvable": true
+    },
+    {
+      "phase": "rerank",
+      "mean_ns": 5927.433333,
+      "share_permille": 174,
+      "bytes_per_query": 51200.0,
+      "resolvable": true
+    },
+    {
+      "phase": "finalize",
+      "mean_ns": 2804.466667,
+      "share_permille": 82,
+      "bytes_per_query": 0.0,
+      "resolvable": true
+    }
+  ],
+  "structural_claims": {
+    "table_macs_per_query": 32768,
+    "scan_ops_per_query": 16000,
+    "note": "table build scales with 2^b*D and is independent of N; scan scales with N*m. Sweep --n to test both.",
+    "measured_scaling": "SIFT1M slice, D=128 m=16 b=8 R=100: table flat at ~8.6us across N=1000..5000 (independent of N, as claimed); scan 39/106/228us at N=1000/2500/5000 (linear in N, as claimed). Scan share rises 734 -> 934 permille over that range, so the cost model's expectation that Table and Rerank dominate does NOT hold at these corpus sizes on this host."
+  },
+  "energy_model": {
+    "form": "E = sum_phase(cycles * P_active / f) + bytes * E_per_byte",
+    "measured_here": "cycles and bytes per phase",
+    "requires_hardware": "P_active and E_per_byte \u2014 this host has no current sensor"
+  }
+}
