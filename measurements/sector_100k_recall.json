@@ -1,0 +1,147 @@
+{
+  "measurement": "recall",
+  "dataset": "/home/sensifai/sector-work/datasets/sift/sift_base.fvecs",
+  "config": {
+    "d": 128,
+    "m": 16,
+    "b": 8,
+    "n": 100000,
+    "r": 100,
+    "k": 10,
+    "seed": 42,
+    "train_n": 100000
+  },
+  "queries": 200,
+  "build_seconds": 497.985914,
+  "codebook_bytes": 32768,
+  "payload_bytes_per_vector": 16,
+  "k_values": [
+    1,
+    10,
+    100
+  ],
+  "ground_truth": "recomputed for the subset — the shipped truth indexes the full corpus",
+  "synthetic_reference": {
+    "source": "technical report v5, synthetic corpus",
+    "config": "D=128, m=16, b=8",
+    "recall_at_10_r100": 0.605000,
+    "recall_at_10_r500": 0.934000
+  },
+  "by_depth": [
+    {
+      "r": 10,
+      "stage_one_recall": [
+        0.620000,
+        0.642000,
+        0.099100
+      ],
+      "two_stage_recall": [
+        0.935000,
+        0.642000,
+        0.099100
+      ],
+      "present_in_candidates": [
+        0.935000,
+        0.642000,
+        0.099100
+      ],
+      "rerank_gain": [
+        0.315000,
+        0.000000,
+        0.000000
+      ]
+    },
+    {
+      "r": 50,
+      "stage_one_recall": [
+        0.620000,
+        0.642000,
+        0.443900
+      ],
+      "two_stage_recall": [
+        0.995000,
+        0.968500,
+        0.443900
+      ],
+      "present_in_candidates": [
+        0.995000,
+        0.968500,
+        0.443900
+      ],
+      "rerank_gain": [
+        0.375000,
+        0.326500,
+        0.000000
+      ]
+    },
+    {
+      "r": 100,
+      "stage_one_recall": [
+        0.620000,
+        0.642000,
+        0.714900
+      ],
+      "two_stage_recall": [
+        1.000000,
+        0.991000,
+        0.714900
+      ],
+      "present_in_candidates": [
+        1.000000,
+        0.991000,
+        0.714900
+      ],
+      "rerank_gain": [
+        0.380000,
+        0.349000,
+        0.000000
+      ]
+    },
+    {
+      "r": 500,
+      "stage_one_recall": [
+        0.620000,
+        0.642000,
+        0.714900
+      ],
+      "two_stage_recall": [
+        1.000000,
+        0.999500,
+        0.992900
+      ],
+      "present_in_candidates": [
+        1.000000,
+        0.999500,
+        0.992900
+      ],
+      "rerank_gain": [
+        0.380000,
+        0.357500,
+        0.278000
+      ]
+    },
+    {
+      "r": 1000,
+      "stage_one_recall": [
+        0.620000,
+        0.642000,
+        0.714900
+      ],
+      "two_stage_recall": [
+        1.000000,
+        1.000000,
+        0.999550
+      ],
+      "present_in_candidates": [
+        1.000000,
+        1.000000,
+        0.999550
+      ],
+      "rerank_gain": [
+        0.380000,
+        0.358000,
+        0.284650
+      ]
+    }
+  ]
+}
