@@ -1,0 +1,59 @@
+{
+  "measurement": "budget",
+  "dataset": "/home/sensifai/sector-work/datasets/sift/sift_base.fvecs",
+  "config": {
+    "d": 128,
+    "m": 16,
+    "b": 8,
+    "n": 1000000,
+    "r": 100,
+    "k": 10,
+    "seed": 42,
+    "train_n": 100000
+  },
+  "claims": [
+    {
+      "name": "codebook size",
+      "predicted": 32768.000000,
+      "measured": 32768.000000,
+      "unit": "bytes",
+      "relative_error": 0.000000,
+      "tolerance": 0.000000,
+      "verdict": "holds"
+    },
+    {
+      "name": "payload per vector",
+      "predicted": 16.000000,
+      "measured": 16.000000,
+      "unit": "bytes",
+      "relative_error": 0.000000,
+      "tolerance": 0.000000,
+      "verdict": "holds"
+    },
+    {
+      "name": "codes array",
+      "predicted": 16000000.000000,
+      "measured": 16000000.000000,
+      "unit": "bytes",
+      "relative_error": 0.000000,
+      "tolerance": 0.000000,
+      "verdict": "holds"
+    }
+  ],
+  "disk": {
+    "codebook_bytes": 32768,
+    "codebook_replica_bytes": 32768,
+    "payload_blocks": 31250,
+    "rerank_blocks": 250000,
+    "crc_bytes": 1125000,
+    "image_bytes": 145190536,
+    "stored_bytes_per_vector": 145.190536,
+    "protection_fraction": 0.007974,
+    "note": "protection = one codebook replica + out-of-line CRC arrays; the replica is a fixed cost independent of N, so its share falls as N grows"
+  },
+  "memory": {
+    "peak_rss_bytes": 549748736,
+    "note": "host process RSS, which includes the resident corpus and the builder's working set — NOT the device workspace figure. The no_std workspace claim is checked by sector-core's const-fn assertions, not by this number.",
+    "query_sink": 6400
+  }
+}
