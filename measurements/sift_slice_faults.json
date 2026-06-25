@@ -1,0 +1,120 @@
+{
+  "measurement": "faults",
+  "dataset": "sift_slice/sift_base_slice.fvecs",
+  "config": {
+    "d": 128,
+    "m": 16,
+    "b": 8,
+    "n": 3000,
+    "r": 100,
+    "k": 10,
+    "seed": 42
+  },
+  "queries": 50,
+  "clean_two_stage_recall": 1.0,
+  "note": "every loss is relative to the clean two-stage baseline, not an oracle",
+  "channels": [
+    {
+      "channel": "codebook bit flips",
+      "note": "one corrupted byte alters every vector using that centroid",
+      "points": [
+        {
+          "bits_flipped": 1,
+          "recall": 1.0,
+          "loss": 0.0
+        },
+        {
+          "bits_flipped": 4,
+          "recall": 1.0,
+          "loss": 0.0
+        },
+        {
+          "bits_flipped": 16,
+          "recall": 1.0,
+          "loss": 0.0
+        },
+        {
+          "bits_flipped": 64,
+          "recall": 0.998,
+          "loss": 0.002
+        },
+        {
+          "bits_flipped": 256,
+          "recall": 0.982,
+          "loss": 0.018
+        }
+      ]
+    },
+    {
+      "channel": "payload bit flips",
+      "note": "one corrupted code affects one vector",
+      "points": [
+        {
+          "bits_flipped": 16,
+          "fraction_of_code_bits": 4.2e-05,
+          "recall": 1.0,
+          "loss": 0.0
+        },
+        {
+          "bits_flipped": 256,
+          "fraction_of_code_bits": 0.000667,
+          "recall": 0.998,
+          "loss": 0.002
+        },
+        {
+          "bits_flipped": 4096,
+          "fraction_of_code_bits": 0.010667,
+          "recall": 0.97,
+          "loss": 0.03
+        },
+        {
+          "bits_flipped": 16384,
+          "fraction_of_code_bits": 0.042667,
+          "recall": 0.81,
+          "loss": 0.19
+        }
+      ]
+    },
+    {
+      "channel": "payload block drops",
+      "note": "a detected CRC failure removes every vector in the block",
+      "points": [
+        {
+          "blocks_dropped": 1,
+          "vectors_lost": 32,
+          "recall": 0.994,
+          "loss": 0.006
+        },
+        {
+          "blocks_dropped": 4,
+          "vectors_lost": 128,
+          "recall": 0.974,
+          "loss": 0.026
+        },
+        {
+          "blocks_dropped": 16,
+          "vectors_lost": 512,
+          "recall": 0.876,
+          "loss": 0.124
+        },
+        {
+          "blocks_dropped": 64,
+          "vectors_lost": 1408,
+          "recall": 0.554,
+          "loss": 0.446
+        }
+      ]
+    },
+    {
+      "channel": "correlated codebook sector failure",
+      "note": "flash fails in sector-correlated bursts; the allocation analysis assumes independence, and this channel shows the gap",
+      "points": [
+        {
+          "bytes_erased": 4096,
+          "recall": 0.996,
+          "loss": 0.004
+        }
+      ]
+    }
+  ]
+}
