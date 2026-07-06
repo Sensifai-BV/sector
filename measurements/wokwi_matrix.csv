@@ -1,0 +1,10 @@
+chip,board,result,scan_us_per_query,scan_ns_per_vector,scan_x4_us_per_query,capacity_vectors,evidence
+esp32c2,(no Wokwi board),SKIP,,,,,build-verified only
+esp32c5,(no Wokwi board),SKIP,,,,,build-verified only
+esp32c61,(no Wokwi board),SKIP,,,,,build-verified only
+esp32c3,board-esp32-c3-devkitm-1,BLOCKED,,,,,"wokwi-cli's WebSocket client does not honour HTTP(S)_PROXY, so it cannot reach wss://wokwi.com from the sandbox even with the domain granted; the Pi's network does not resolve wokwi.com either. Firmware builds and links -- emulation not attempted"
+esp32c6,board-esp32-c6-devkitc-1,BLOCKED,,,,,"wokwi-cli's WebSocket client does not honour HTTP(S)_PROXY, so it cannot reach wss://wokwi.com from the sandbox even with the domain granted; the Pi's network does not resolve wokwi.com either. Firmware builds and links -- emulation not attempted"
+esp32h2,board-esp32-h2-devkitm-1,BLOCKED,,,,,"wokwi-cli's WebSocket client does not honour HTTP(S)_PROXY, so it cannot reach wss://wokwi.com from the sandbox even with the domain granted; the Pi's network does not resolve wokwi.com either. Firmware builds and links -- emulation not attempted"
+esp32,board-esp32-devkit-c-v4,SKIP,,,,,espup Xtensa toolchain cannot install here (EPERM); firmware not built
+esp32s2,board-esp32-s2-devkitm-1,SKIP,,,,,espup Xtensa toolchain cannot install here (EPERM); firmware not built
+esp32s3,board-esp32-s3-devkitc-1,SKIP,,,,,espup Xtensa toolchain cannot install here (EPERM); firmware not built
