@@ -1,0 +1,6 @@
+[toolchain]
+channel = "stable"
+components = ["rustfmt", "clippy"]
+# Neutral bare-metal check target (CI job `nostd`) plus the ESP32-C3 (T0) triple.
+# The ESP32-S3 (T1) is Xtensa and needs the espup fork: `rustup run esp cargo ...`.
+targets = ["thumbv7em-none-eabihf", "riscv32imc-unknown-none-elf"]
