@@ -1,0 +1,28 @@
+# One block per Rust target the chip features span. `linkall.x` comes from
+# esp-hal's build script for every chip, so the flag is identical and only the
+# triple differs.
+#
+#   riscv32imc  -> esp32-c2, esp32-c3
+#   riscv32imac -> esp32-c5, esp32-c6, esp32-c61, esp32-h2
+#   xtensa      -> esp32, esp32-s2, esp32-s3 (requires the espup Xtensa fork:
+#                  `rustup run esp cargo build ...`)
+[target.riscv32imc-unknown-none-elf]
+rustflags = ["-C", "link-arg=-Tlinkall.x"]
+
+[target.riscv32imac-unknown-none-elf]
+rustflags = ["-C", "link-arg=-Tlinkall.x"]
+
+[target.xtensa-esp32-none-elf]
+rustflags = ["-C", "link-arg=-Tlinkall.x"]
+
+[target.xtensa-esp32s2-none-elf]
+rustflags = ["-C", "link-arg=-Tlinkall.x"]
+
+[target.xtensa-esp32s3-none-elf]
+rustflags = ["-C", "link-arg=-Tlinkall.x"]
+
+[env]
+# Let the image boot under emulation, which reports efuse blk rev v1.3. Without
+# this, esp-hal 1.x writes a high minimum revision into the image header and the
+# bootloader refuses with "Image requires efuse blk rev >= v292.30".
+ESP_HAL_CONFIG_MIN_CHIP_REVISION = "0"
