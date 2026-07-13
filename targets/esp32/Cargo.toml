@@ -1,0 +1,69 @@
+[package]
+name = "sector-esp32"
+version = "0.1.0"
+edition = "2021"
+description = "Bare-metal ESP32 port of SECTOR: esp-storage NOR backend, GPIO phase instrument, benchmark firmware"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ja7ad/sector"
+# Firmware, not a library: built from this directory against a RISC-V or Xtensa
+# target with its own `.cargo/config.toml`, so it is excluded from the root
+# workspace (see the workspace `exclude` list).
+publish = false
+
+[dependencies]
+sector-hal = { path = "../../crates/sector-hal" }
+sector-core = { path = "../../crates/sector-core" }
+sector-quant = { path = "../../crates/sector-quant" }
+sector-codec = { path = "../../crates/sector-codec" }
+sector-format = { path = "../../crates/sector-format" }
+
+esp-hal = { version = "1.1.1", default-features = false }
+esp-backtrace = { version = "0.19.0", features = ["panic-handler", "println"] }
+esp-println = { version = "0.17.0" }
+# `bytewise-read` sets esp-storage's READ_SIZE to 1, dropping its 4-byte
+# alignment requirement on both read offset AND length. SECTOR reads at block
+# and record granularity — a 128 B rerank record at an arbitrary block offset is
+# word-aligned, but a 16 B payload record at `id * 16` inside a pi-strided
+# region is not in general — and without this every such read returns
+# `NotAligned`. The backend also aligns explicitly, so the port stays correct if
+# this feature is ever dropped.
+esp-storage = { version = "0.9.0", features = ["bytewise-read"] }
+embedded-storage = "0.3.1"
+esp-bootloader-esp-idf = "0.5.0"
+critical-section = "1.2.0"
+
+[features]
+default = []
+
+# One feature per chip that BOTH esp-hal 1.1.1 and esp-storage 0.9.0 support.
+# The intersection is what bounds the port: SECTOR needs the flash backend, not
+# only the HAL. Exactly one must be enabled; the build fails with a named error
+# otherwise (see src/lib.rs).
+#
+# Three Rust targets are involved, so `--features` alone is not enough — the
+# matching `--target` must be passed too (scripts/build_matrix.sh does this):
+#
+#   riscv32imc-unknown-none-elf    c2, c3
+#   riscv32imac-unknown-none-elf   c5, c6, c61, h2
+#   xtensa-esp32{,s2,s3}-none-elf  esp32, s2, s3   (needs the espup fork)
+chip-esp32 = ["esp-hal/esp32", "esp-hal/rt", "esp-backtrace/esp32", "esp-println/esp32", "esp-storage/esp32", "esp-bootloader-esp-idf/esp32"]
+chip-esp32c2 = ["esp-hal/esp32c2", "esp-hal/rt", "esp-backtrace/esp32c2", "esp-println/esp32c2", "esp-storage/esp32c2", "esp-bootloader-esp-idf/esp32c2"]
+chip-esp32c3 = ["esp-hal/esp32c3", "esp-hal/rt", "esp-backtrace/esp32c3", "esp-println/esp32c3", "esp-storage/esp32c3", "esp-bootloader-esp-idf/esp32c3"]
+chip-esp32c5 = ["esp-hal/esp32c5", "esp-hal/rt", "esp-backtrace/esp32c5", "esp-println/esp32c5", "esp-storage/esp32c5", "esp-bootloader-esp-idf/esp32c5"]
+chip-esp32c6 = ["esp-hal/esp32c6", "esp-hal/rt", "esp-backtrace/esp32c6", "esp-println/esp32c6", "esp-storage/esp32c6", "esp-bootloader-esp-idf/esp32c6"]
+chip-esp32c61 = ["esp-hal/esp32c61", "esp-hal/rt", "esp-backtrace/esp32c61", "esp-println/esp32c61", "esp-storage/esp32c61", "esp-bootloader-esp-idf/esp32c61"]
+chip-esp32h2 = ["esp-hal/esp32h2", "esp-hal/rt", "esp-backtrace/esp32h2", "esp-println/esp32h2", "esp-storage/esp32h2", "esp-bootloader-esp-idf/esp32h2"]
+chip-esp32s2 = ["esp-hal/esp32s2", "esp-hal/rt", "esp-backtrace/esp32s2", "esp-println/esp32s2", "esp-storage/esp32s2", "esp-bootloader-esp-idf/esp32s2"]
+chip-esp32s3 = ["esp-hal/esp32s3", "esp-hal/rt", "esp-backtrace/esp32s3", "esp-println/esp32s3", "esp-storage/esp32s3", "esp-bootloader-esp-idf/esp32s3"]
+
+# Drive GPIO pins at phase boundaries so a logic analyzer (or Wokwi's VCD
+# capture) can time each phase without instrumenting the code under test.
+gpio-phases = []
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+# Keep symbols: asm-check greps the emitted machine code for multiplies in the
+# scoring loop, and a stripped binary cannot be checked.
+debug = true
