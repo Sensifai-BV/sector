@@ -1,0 +1,19 @@
+# ESP32 partition table for a SECTOR volume.
+#
+# The volume gets its own partition rather than a file in a filesystem. Two
+# reasons, both load-bearing:
+#
+#   - Erase-sector alignment is a format requirement. A filesystem may relocate
+#     or fragment a file, which breaks the guarantee that replicas occupy
+#     independent erase sectors.
+#   - The XIP window maps a flash address range. A file has no stable address.
+#
+# The volume partition is 2 MB of a 4 MB part, leaving room for the app and the
+# factory image. At T0 (16 B payload, 128 B rerank per vector) that holds
+# roughly 14,000 vectors including CRC arrays and codebook replicas.
+#
+# Name,     Type, SubType,  Offset,   Size,   Flags
+nvs,        data, nvs,      0x9000,   0x6000,
+phy_init,   data, phy,      0xf000,   0x1000,
+factory,    app,  factory,  0x10000,  0x180000,
+sector,     data, undefined,0x200000, 0x200000,
