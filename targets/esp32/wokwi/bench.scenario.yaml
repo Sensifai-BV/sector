@@ -1,0 +1,79 @@
+version: 1
+name: "SECTOR device benchmark"
+author: "SECTOR"
+description: "Boot, report budgets and scan cost, and assert the arithmetic the profile predicts"
+steps:
+  - wait-serial: "sector-bench-device v1"
+
+  # The configuration must print before any number, so a figure lifted out of
+  # this log carries the profile it was measured at.
+  - wait-serial: "config m=16 b=8 centroids=256"
+
+  # Flash capacity is read from the image header at runtime and varies by BOARD,
+  # not by chip family. A board reporting 0 is the failure slate hit on the
+  # plain esp32 devkit: esp-storage could not decode the flash-size nibble, so
+  # capacity came back 0 and every write was rejected by its own bounds check.
+  # Asserting the 4 MiB the devkit boards emulate catches that directly.
+  - wait-serial: "flash_bytes=4194304"
+
+  # Stored bytes per vector is the claim the capacity figure rests on: 16 B of
+  # payload at m=16, b=8, plus a 128 B rerank record. A different number here
+  # means the profile arithmetic and the firmware disagree.
+  - wait-serial: "bytes_per_vector=144"
+
+  # Resident working set, from the same const fn the host uses. The ADC table is
+  # m * 2^b * 4 = 16,384 B and the codebook is 2^b * D = 32,768 B; these are the
+  # two allocations that decide whether the profile fits the part at all.
+  - wait-serial: "resident_table_bytes=16384"
+  - wait-serial: "resident_codebook_bytes=32768"
+  - wait-serial: "resident_heap_bytes=800"
+
+  # Timebase calibration, asserted before any timing figure is read. A
+  # fixed-work loop of known instruction count: if it reports far more time than
+  # its instructions can account for, the timebase is wrong and every absolute
+  # figure is scaled by the same factor. The first C3 run reported 15,757
+  # ns/vector, ~22x more than the emitted instruction count allows, which is
+  # what this exists to diagnose.
+  # The clock, because every projected figure scales with it and the two
+  # candidate values on this family differ by 2x.
+  - wait-serial: "cpu_clock_hz="
+
+  - wait-serial: "calib_iters=100000"
+  - wait-serial: "calib_ns_per_iter="
+
+  # Second calibration, load-dominated. The register-only loop cannot tell
+  # whether the emulator's slowdown is uniform across instruction types, and the
+  # scan is load-dominated, so a disagreement here decides which factor applies.
+  - wait-serial: "calib2_ns_per_iter="
+
+  # The scan must actually run and report a per-vector cost. A zero here would
+  # mean the timer never advanced -- an absence dressed as a measurement, which
+  # is the reporting failure this project has already hit once.
+  - wait-serial: "scan_us_per_query="
+  - wait-serial: "scan_ns_per_vector="
+
+  # Evictions prove the bounded heap did real work: with R=100 against 2,000
+  # scanned vectors the heap must have displaced incumbents. Zero evictions
+  # would mean the threshold test rejected everything, which would make the
+  # latency figure meaningless.
+  - wait-serial: "evictions_total="
+
+  # The four-chain variant, timed on the same corpus. It measured no faster on
+  # out-of-order cores; this is the in-order comparison that decides whether it
+  # keeps its place in the tree.
+  - wait-serial: "scan_x4_us_per_query="
+
+  # Flash stage. T0 keeps the 128 B rerank record in flash, so a query pays R
+  # flash reads that a RAM-only scan never sees. A zero here would mean the
+  # region was never written and the read latency is meaningless.
+  - wait-serial: "corpus_vectors=512"
+  # Emitted so a lifted figure carries its caveat: a 28 us sector erase is ~900x
+  # faster than physics allows, so Wokwi does not model flash timing.
+  - wait-serial: "flash_timing_model=emulated_not_physical"
+  - wait-serial: "corpus_erase_us_per_sector="
+  - wait-serial: "corpus_program_us_per_page="
+  - wait-serial: "rerank_us_per_candidate="
+  - wait-serial: "read_us_per_128b="
+  - wait-serial: "read_us_per_512b="
+
+  - wait-serial: "DEVICE_BENCH_DONE"
