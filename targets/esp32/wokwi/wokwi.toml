@@ -1,0 +1,6 @@
+[wokwi]
+version = 1
+# riscv32imc: the c2/c3 target. The matrix runner rewrites this per chip; the
+# committed default matches diagram-esp32c3.json so a manual run works.
+elf = "../target/riscv32imc-unknown-none-elf/release/bench"
+firmware = "../target/riscv32imc-unknown-none-elf/release/bench"
