@@ -1,0 +1,9 @@
+[build]
+target = "thumbv6m-none-eabi"
+
+[target.thumbv6m-none-eabi]
+rustflags = [
+  # cortex-m-rt's linker script, plus the RP2040 memory map in memory.x.
+  "-C", "link-arg=--nmagic",
+  "-C", "link-arg=-Tlink.x",
+]
