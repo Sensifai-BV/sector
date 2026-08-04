@@ -1,0 +1,39 @@
+[package]
+name = "sector-rp2040"
+version = "0.1.0"
+edition = "2021"
+description = "Raspberry Pi Pico (RP2040) port of SECTOR: QSPI NOR backend, cycle instrument, benchmark firmware"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/ja7ad/sector"
+# Firmware, not a library: built for thumbv6m-none-eabi with its own
+# .cargo/config.toml, so it is excluded from the root workspace.
+publish = false
+
+[dependencies]
+sector-hal = { path = "../../crates/sector-hal" }
+sector-core = { path = "../../crates/sector-core" }
+sector-quant = { path = "../../crates/sector-quant" }
+sector-codec = { path = "../../crates/sector-codec" }
+sector-format = { path = "../../crates/sector-format" }
+
+cortex-m = "0.7.7"
+cortex-m-rt = "0.7.5"
+embedded-hal = "1.0.0"
+panic-halt = "1.0.0"
+rp2040-hal = { version = "0.12.0", features = ["rt", "critical-section-impl"] }
+rp2040-boot2 = "0.3.0"
+
+[features]
+default = []
+# Drive GPIO pins at phase boundaries for logic-analyzer timing.
+gpio-phases = []
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+# Keep symbols: asm-check greps the emitted machine code for multiplies in the
+# scoring loop, and a stripped binary cannot be checked. On this part that check
+# matters more than anywhere else — Cortex-M0+ has a weak multiplier and no
+# hardware divide.
+debug = true
