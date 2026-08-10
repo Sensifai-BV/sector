@@ -1,0 +1,412 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  verify-version:
+    name: Verify tag matches Cargo.toml
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          set -euo pipefail
+          VERSION=$(grep -m1 '^version = ' Cargo.toml | cut -d'"' -f2)
+          TAG="${GITHUB_REF_NAME#v}"
+          echo "manifest=$VERSION tag=$TAG"
+          if [ "$VERSION" != "$TAG" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not match workspace version $VERSION"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      # The format version is part of the release's compatibility contract: a
+      # reader refuses an unknown FORMAT_VERSION outright rather than parsing
+      # best-effort, so a bump means every existing volume must be rebuilt. Surfaced
+      # in the job log so it appears in the release record rather than only in a
+      # commit nobody re-reads.
+      - name: Report on-disk format version
+        run: |
+          set -euo pipefail
+          FV=$(grep -m1 'pub const FORMAT_VERSION' crates/sector-format/src/lib.rs \
+               | sed 's/[^0-9]*\([0-9]*\).*/\1/')
+          echo "on-disk FORMAT_VERSION = $FV"
+          echo "volumes built by an earlier format version cannot be read by this release"
+
+  # ---------------------------------------------------------------------------
+  # Leg 1 — ESP32 family. Nine chips across three Rust targets; the chip feature
+  # and the triple are independent choices that both have to be right, and a
+  # mismatch fails hundreds of crates deep with nothing naming the cause (see
+  # scripts/build_chip.sh). The pairing is spelled out per matrix entry for that
+  # reason rather than derived in a step.
+  # ---------------------------------------------------------------------------
+  build-esp32:
+    name: Build ${{ matrix.chip }} firmware
+    runs-on: ubuntu-latest
+    needs: [verify-version]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - chip: esp32c2
+            target: riscv32imc-unknown-none-elf
+            arch: riscv
+          - chip: esp32c3
+            target: riscv32imc-unknown-none-elf
+            arch: riscv
+          - chip: esp32c5
+            target: riscv32imac-unknown-none-elf
+            arch: riscv
+          - chip: esp32c6
+            target: riscv32imac-unknown-none-elf
+            arch: riscv
+          - chip: esp32c61
+            target: riscv32imac-unknown-none-elf
+            arch: riscv
+          - chip: esp32h2
+            target: riscv32imac-unknown-none-elf
+            arch: riscv
+          - chip: esp32
+            target: xtensa-esp32-none-elf
+            arch: xtensa
+          - chip: esp32s2
+            target: xtensa-esp32s2-none-elf
+            arch: xtensa
+          - chip: esp32s3
+            target: xtensa-esp32s3-none-elf
+            arch: xtensa
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust (RISC-V)
+        if: matrix.arch == 'riscv'
+        run: |
+          set -euo pipefail
+          rustup target add ${{ matrix.target }}
+
+      # Xtensa is not a stable-rustc target: it needs the espup fork for
+      # asm_experimental_arch. This is why the two architectures cannot share a
+      # setup step.
+      - name: Install Rust (Xtensa via espup)
+        if: matrix.arch == 'xtensa'
+        run: |
+          set -euo pipefail
+          cargo install espup --locked
+          espup install --targets ${{ matrix.chip }}
+          echo "source $HOME/export-esp.sh" >> "$GITHUB_ENV"
+
+      - name: Install espflash
+        uses: taiki-e/install-action@v2
+        with:
+          tool: espflash
+
+      - name: Build and package
+        working-directory: targets/esp32
+        env:
+          CHIP: ${{ matrix.chip }}
+          TARGET: ${{ matrix.target }}
+        run: |
+          set -euo pipefail
+          if [ "${{ matrix.arch }}" = "xtensa" ]; then
+            # shellcheck disable=SC1091
+            . "$HOME/export-esp.sh"
+          fi
+
+          cargo build --release --bin bench \
+            --features "chip-${CHIP}" --target "${TARGET}"
+
+          ELF="target/${TARGET}/release/bench"
+          test -f "$ELF"
+
+          # The flashable image, not just the ELF: an operator with a board wants
+          # something espflash can write without reconstructing the arguments.
+          espflash save-image --chip "${CHIP}" "$ELF" "sector-${CHIP}.bin"
+
+          # A per-chip README so the archive is self-describing. An artifact whose
+          # flashing command has to be looked up elsewhere gets flashed wrongly.
+          cat > README.txt <<EOF
+          SECTOR firmware — ${CHIP} (${TARGET})
+          version ${{ needs.verify-version.outputs.version }}
+
+          Flash:
+            espflash flash --chip ${CHIP} bench
+
+          Or write the prebuilt image:
+            espflash write-bin --chip ${CHIP} 0x10000 sector-${CHIP}.bin
+
+          bench is the on-device measurement binary. It reports per-phase timings
+          over the UART; see docs/ARCHITECTURE.md for what each phase covers.
+          EOF
+
+          tar czf "sector-${CHIP}-${{ github.ref_name }}.tar.gz" \
+            "sector-${CHIP}.bin" \
+            "$ELF" \
+            README.txt
+
+          # sha256sum on Linux, shasum on macOS, python3 otherwise. The .sha256
+          # file verifies with `sha256sum -c` regardless of which ran.
+          sha256_of() {
+            if command -v sha256sum >/dev/null 2>&1; then
+              sha256sum "$1"
+            elif command -v shasum >/dev/null 2>&1; then
+              shasum -a 256 "$1"
+            else
+              python3 -c "
+          import hashlib, sys
+          h = hashlib.sha256()
+          with open(sys.argv[1], 'rb') as f:
+              for chunk in iter(lambda: f.read(1 << 20), b''):
+                  h.update(chunk)
+          print(h.hexdigest() + '  ' + sys.argv[1])
+          " "$1"
+            fi
+          }
+          sha256_of "sector-${CHIP}-${{ github.ref_name }}.tar.gz" \
+            > "sector-${CHIP}-${{ github.ref_name }}.tar.gz.sha256"
+
+      - name: Upload ESP32 release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            targets/esp32/sector-${{ matrix.chip }}-${{ github.ref_name }}.tar.gz
+            targets/esp32/sector-${{ matrix.chip }}-${{ github.ref_name }}.tar.gz.sha256
+
+  # ---------------------------------------------------------------------------
+  # Leg 2 — RP2040 (Raspberry Pi Pico). Produces a .uf2, which is the only
+  # artifact a Pico can be programmed with by drag-and-drop.
+  # ---------------------------------------------------------------------------
+  build-rp2040:
+    name: Build RP2040 firmware
+    runs-on: ubuntu-latest
+    needs: [verify-version]
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup target add thumbv6m-none-eabi
+
+      - name: Install elf2uf2-rs
+        uses: taiki-e/install-action@v2
+        with:
+          tool: elf2uf2-rs
+
+      - name: Build and package
+        working-directory: targets/rp2040
+        run: |
+          set -euo pipefail
+          cargo build --release --bin bench
+          ELF="target/thumbv6m-none-eabi/release/bench"
+          test -f "$ELF"
+          elf2uf2-rs "$ELF" sector-rp2040.uf2
+
+          # Verify the UF2 rather than trusting the converter. The header is
+          # fixed: magic 0x0A324655 at offset 0, second magic 0x9E5D5157 at 4, and
+          # the RP2040 family id 0xE48BFF56 at 28. A malformed file is silently
+          # ignored by the bootloader — the Pico mounts, accepts the copy, and
+          # never runs it — so a bad artifact would otherwise ship undetected.
+          python3 - <<'PY'
+          import struct, sys
+          with open("sector-rp2040.uf2", "rb") as f:
+              head = f.read(32)
+          m0, m1 = struct.unpack_from("<II", head, 0)
+          family = struct.unpack_from("<I", head, 28)[0]
+          assert m0 == 0x0A324655, f"first magic {m0:#x}"
+          assert m1 == 0x9E5D5157, f"second magic {m1:#x}"
+          assert family == 0xE48BFF56, f"family id {family:#x} is not RP2040"
+          print(f"uf2 header ok: family {family:#x}")
+          PY
+
+          cat > README.txt <<EOF
+          SECTOR firmware — RP2040 (Raspberry Pi Pico, thumbv6m-none-eabi)
+          version ${{ needs.verify-version.outputs.version }}
+
+          Flash: hold BOOTSEL while connecting, then copy sector-rp2040.uf2 to the
+          RPI-RP2 volume that appears.
+
+          Note this is the Pico microcontroller, not a Raspberry Pi single-board
+          computer. For Pi 1/2/3/4/5 and Zero, use the Linux artifacts — see
+          docs/PLATFORMS.md for the model-to-artifact table.
+          EOF
+
+          tar czf "sector-rp2040-${{ github.ref_name }}.tar.gz" \
+            sector-rp2040.uf2 "$ELF" README.txt
+          sha256sum "sector-rp2040-${{ github.ref_name }}.tar.gz" \
+            > "sector-rp2040-${{ github.ref_name }}.tar.gz.sha256"
+
+      - name: Upload RP2040 release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            targets/rp2040/sector-rp2040-${{ github.ref_name }}.tar.gz
+            targets/rp2040/sector-rp2040-${{ github.ref_name }}.tar.gz.sha256
+
+  # ---------------------------------------------------------------------------
+  # Leg 3 — Linux, including every Raspberry Pi ever made.
+  #
+  # Three ARM ABIs cover the whole Pi family (docs/PLATFORMS.md maps model to
+  # artifact). All are static musl builds: one artifact per ABI runs on Raspberry
+  # Pi OS, Debian, Ubuntu, Alpine and Yocto with no runtime dependency and no
+  # glibc floor to track. The rust-lld and link-self-contained flags live in
+  # .cargo/config.toml, so no C toolchain, sysroot or apt package is needed and a
+  # developer's local build matches this one.
+  # ---------------------------------------------------------------------------
+  build-linux:
+    name: Build ${{ matrix.asset }}
+    runs-on: ubuntu-latest
+    needs: [verify-version]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Pi 1, Zero, Zero W, Compute Module 1 — ARMv6 + VFPv2.
+          - target: arm-unknown-linux-musleabihf
+            asset: sector-linux-armv6
+            qemu: qemu-arm-static
+            isa: v6
+            boards: Pi 1 A/A+/B/B+, Zero, Zero W, Zero WH, Compute Module 1
+          # Pi 2 Model B v1.1 — Cortex-A7, ARMv7-A. Also the artifact for any
+          # 64-bit-capable board running a 32-bit userland.
+          - target: armv7-unknown-linux-musleabihf
+            asset: sector-linux-armv7
+            qemu: qemu-arm-static
+            isa: v7
+            boards: Pi 2 B v1.1, and any Pi running a 32-bit userland
+          # Pi 2 v1.2, Zero 2 W, Pi 3, Pi 4, Pi 5.
+          - target: aarch64-unknown-linux-musl
+            asset: sector-linux-arm64
+            qemu: qemu-aarch64-static
+            isa: aarch64
+            boards: Pi 2 B v1.2, Zero 2 W, Pi 3, Pi 4, Pi 400, Pi 5, CM3/CM4/CM5
+          - target: x86_64-unknown-linux-musl
+            asset: sector-linux-x86_64
+            qemu: ''
+            isa: x86_64
+            boards: x86-64 Linux hosts and containers
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup target add ${{ matrix.target }}
+
+      - name: Install qemu-user-static
+        if: matrix.qemu != ''
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends qemu-user-static
+
+      - name: Build
+        run: cargo build --release -p sector-cli --target ${{ matrix.target }}
+
+      # A binary that links is not a binary that runs. The checks below are the
+      # reason this leg exists rather than a bare `cargo build`.
+      - name: Assert the artifact is static
+        run: |
+          set -euo pipefail
+          BIN="target/${{ matrix.target }}/release/sector"
+          test -f "$BIN"
+          file "$BIN"
+          # A dynamic interpreter would mean the "runs anywhere" claim is false:
+          # the artifact would need a loader the target may not have.
+          if readelf -l "$BIN" | grep -q INTERP; then
+            echo "::error::${{ matrix.asset }} has a dynamic interpreter; expected a static binary"
+            exit 1
+          fi
+
+      # The ISA-baseline assertion, and the check this whole matrix exists for. An
+      # ARMv7 binary installs cleanly on a Pi Zero and then dies with SIGILL at the
+      # first ARMv7-only instruction — possibly not until a query arrives. The
+      # triple's *name* is not evidence; the ELF attributes are.
+      # Reads Tag_CPU_arch out of .ARM.attributes numerically rather than grepping
+      # `readelf -A`: GNU binutils renders that tag as `v6` and LLVM as `ARM v6`, so
+      # a grep tuned to one silently finds nothing against the other and the check
+      # passes by not working. The numeric encoding is fixed by the ARM ABI. The
+      # script is tested in both directions — it fails when the expectation is
+      # wrong, which is the only property that makes it worth having.
+      - name: Assert the ISA baseline
+        run: python3 scripts/check_isa.py "target/${{ matrix.target }}/release/sector" "${{ matrix.isa }}"
+
+      # Run the artifact under emulation. `selftest` builds a volume, queries it,
+      # checks recall against brute force, corrupts a block and confirms the
+      # corruption is detected — on the target's own arithmetic, which is where an
+      # endianness or alignment assumption would show.
+      - name: Run the artifact under qemu
+        if: matrix.qemu != ''
+        run: |
+          set -euo pipefail
+          BIN="target/${{ matrix.target }}/release/sector"
+          Q="${{ matrix.qemu }}"
+          "$Q" "$BIN" --version || "$Q" "$BIN" help
+          "$Q" "$BIN" doctor --json || true   # exit 1/2 is expected: the host is not a Pi
+          "$Q" "$BIN" selftest --n 512
+
+      - name: Run natively
+        if: matrix.qemu == ''
+        run: |
+          set -euo pipefail
+          BIN="target/${{ matrix.target }}/release/sector"
+          "$BIN" help
+          "$BIN" selftest --n 512
+
+      - name: Package
+        run: |
+          set -euo pipefail
+          STAGE="stage/${{ matrix.asset }}"
+          mkdir -p "$STAGE"
+          cp "target/${{ matrix.target }}/release/sector" "$STAGE/sector"
+          cp -r packaging/systemd "$STAGE/systemd"
+          cp packaging/install.sh "$STAGE/install.sh"
+          chmod +x "$STAGE/install.sh"
+          cp docs/PLATFORMS.md "$STAGE/PLATFORMS.md"
+
+          # Per-ABI README naming the exact boards this artifact serves. The
+          # commonest way to get this wrong is to guess from a board's marketing
+          # name, so the archive says it outright.
+          cat > "$STAGE/README.txt" <<EOF
+          SECTOR ${{ needs.verify-version.outputs.version }} — ${{ matrix.asset }}
+          target: ${{ matrix.target }} (static, no runtime dependencies)
+
+          Boards this artifact is for:
+            ${{ matrix.boards }}
+
+          If you are unsure, run ./sector doctor on the board: it reports the
+          model, the ISA, and which artifact to install. It exits 2 when the
+          binary cannot run correctly there.
+
+          Install as a systemd service:
+            sudo ./install.sh --image /path/to/volume.sector
+
+          Quick check with no dataset:
+            ./sector selftest
+
+          Build a volume (on any machine):
+            ./sector build --input corpus.fvecs --out volume.sector --reserve 4096
+          The --reserve leaves room for ./sector append later; without it the
+          volume is fixed at build size.
+
+          Serve it:
+            ./sector serve --image volume.sector --socket /run/sector/sector.sock
+            curl --unix-socket /run/sector/sector.sock http://localhost/info
+
+          The daemon has no TLS and no authentication. The default is a Unix
+          socket for that reason; --listen is for a trusted network or behind a
+          reverse proxy.
+
+          PLATFORMS.md has the full model-to-artifact table and explains why the
+          Pi Zero and Zero 2 W need different binaries.
+          EOF
+
+          tar czf "${{ matrix.asset }}-${{ github.ref_name }}.tar.gz" -C stage "${{ matrix.asset }}"
+          sha256sum "${{ matrix.asset }}-${{ github.ref_name }}.tar.gz" \
+            > "${{ matrix.asset }}-${{ github.ref_name }}.tar.gz.sha256"
+
+      - name: Upload Linux release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ matrix.asset }}-${{ github.ref_name }}.tar.gz
+            ${{ matrix.asset }}-${{ github.ref_name }}.tar.gz.sha256
