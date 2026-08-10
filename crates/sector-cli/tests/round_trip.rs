@@ -228,6 +228,112 @@ fn a_truncated_image_fails_to_mount_rather_than_mounting_partially() {
 }
 
 #[test]
+fn query_runs_stage_two_and_says_so() {
+    // The regression guard for this file's own history.
+    //
+    // `query_cmd` used to reimplement stage one — an f32 inner product over every
+    // vector, truncate to r, truncate to k, done — while its documentation
+    // claimed to be byte-identical to the device path. It performed no rerank,
+    // verified no CRC, and could not drop a candidate, so a host/device recall
+    // discrepancy would have been blamed on hardware. `sector_bench::pipeline`
+    // records having made the same mistake earlier.
+    //
+    // A claim of equivalence that nothing checks decays back to that, so this
+    // asserts the observable evidence of stage two: CRC verification happened.
+    let b = build_image();
+    let out = Command::new(bin())
+        .args([
+            "query",
+            "--image",
+            b.image.to_str().unwrap(),
+            "--queries",
+            b.queries.to_str().unwrap(),
+            "--k",
+            "10",
+        ])
+        .output()
+        .expect("run query");
+    let text = String::from_utf8_lossy(&out.stdout);
+
+    let verified: u32 = text
+        .lines()
+        .find_map(|l| l.strip_suffix(" candidates dropped"))
+        .and_then(|l| l.split_whitespace().next())
+        .and_then(|n| n.parse().ok())
+        .unwrap_or_else(|| panic!("no CRC line in output:\n{text}"));
+    assert!(
+        verified > 0,
+        "stage two verified no blocks, so it did not run:\n{text}"
+    );
+    assert!(
+        text.contains("0 candidates dropped"),
+        "a clean image dropped candidates:\n{text}"
+    );
+    cleanup(&b);
+}
+
+#[test]
+fn corrupting_a_rerank_block_is_reported_as_drops_not_lost_recall() {
+    // Detection is the point of the CRC, and the count is what makes damage
+    // attributable: a dropped candidate and an evicted one are identical in the
+    // result set, so without the counter this looks like poor recall.
+    //
+    // It also pins the blast radius. One flipped byte fails the whole 512 B
+    // block, and every record sharing that block goes with it — the same
+    // shared-structure argument the codebook makes, one level down.
+    let b = build_image();
+
+    // Locate the rerank region from `inspect` rather than assuming an offset, so
+    // a layout change fails this test loudly instead of corrupting padding.
+    let out = Command::new(bin())
+        .args(["inspect", "--image", b.image.to_str().unwrap()])
+        .output()
+        .expect("run inspect");
+    let text = String::from_utf8_lossy(&out.stdout);
+    let base: usize = text
+        .lines()
+        .find(|l| l.trim_start().starts_with("Rerank "))
+        .and_then(|l| l.split_whitespace().nth(1))
+        .and_then(|n| n.parse().ok())
+        .unwrap_or_else(|| panic!("no Rerank region in inspect output:\n{text}"));
+
+    let mut bytes = std::fs::read(&b.image).expect("read image");
+    // A byte inside the first rerank block, which no other region shares.
+    bytes[base + 5] ^= 0xFF;
+    let corrupted = tmp("corrupted.img");
+    std::fs::write(&corrupted, &bytes).expect("write corrupted");
+
+    let out = Command::new(bin())
+        .args([
+            "query",
+            "--image",
+            corrupted.to_str().unwrap(),
+            "--queries",
+            b.queries.to_str().unwrap(),
+            "--k",
+            "10",
+        ])
+        .output()
+        .expect("run query");
+    assert!(
+        out.status.success(),
+        "corruption must degrade the result, not fail the query"
+    );
+    let text = String::from_utf8_lossy(&out.stdout);
+    assert!(
+        !text.contains("0 candidates dropped"),
+        "a corrupted block was not detected:\n{text}"
+    );
+    assert!(
+        text.contains("run `sector verify --image`"),
+        "damage was reported without telling the operator what to do:\n{text}"
+    );
+
+    let _ = std::fs::remove_file(&corrupted);
+    cleanup(&b);
+}
+
+#[test]
 fn falsify_exits_zero_when_no_claim_is_refuted() {
     // And non-zero when one is, which is what puts a refutation in front of
     // someone rather than in a log.
