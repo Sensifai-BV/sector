@@ -1,0 +1,39 @@
+[package]
+name = "sector-os"
+version.workspace = true
+edition.workspace = true
+description = "POSIX storage backends for SECTOR volumes: positional-read and memory-mapped NOR emulation, platform detection"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["vector-search", "embedded", "linux", "mmap", "storage"]
+categories = ["database-implementations", "os::unix-apis"]
+
+[dependencies]
+sector-hal.workspace = true
+sector-core.workspace = true
+sector-format.workspace = true
+sector-codec.workspace = true
+sector-quant.workspace = true
+# Only for `test-support`, which builds real volume images rather than synthetic
+# byte patterns. Optional so a production build of this crate does not pull the
+# host-side builder in.
+sector-build = { workspace = true, optional = true }
+
+[dev-dependencies]
+sector-build.workspace = true
+
+[features]
+default = []
+# Volume-image construction shared with this crate's tests, the CLI's round-trip
+# test, and the daemon's integration tests. Three copies of an image builder
+# would drift.
+test-support = ["sector-build"]
+# The memory-mapped backend. Off by default: it implements `Xip`, and on managed
+# storage that trait's cost claim does not hold — the first touch of a page is a
+# block read through the flash translation layer, not a load instruction. See
+# the `mapped` module documentation.
+mmap = []
+
+[lints]
+workspace = true
