@@ -16,3 +16,15 @@ path = "src/main.rs"
 sector-build.workspace = true
 sector-sim.workspace = true
 sector-format.workspace = true
+sector-core.workspace = true
+sector-codec.workspace = true
+sector-quant.workspace = true
+sector-hal.workspace = true
+# `test-support` carries the volume-image builder that `selftest` uses. Enabled in
+# the main dependency rather than duplicated here: three copies of an image
+# builder — this crate's, sector-os's tests, and the daemon's — would drift.
+sector-os = { workspace = true, features = ["test-support"] }
+sector-serve.workspace = true
+
+[dev-dependencies]
+sector-os = { workspace = true, features = ["test-support", "mmap"] }
