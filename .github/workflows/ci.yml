@@ -88,7 +88,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends qemu-user-static
 
       - name: Build
-        run: cargo build --workspace --all-features --target ${{ matrix.target }}
+        run: cargo build --release --workspace --all-features --target ${{ matrix.target }}
 
       # The ISA baseline, checked numerically from .ARM.attributes rather than by
       # grepping readelf output, which renders the tag differently depending on
