@@ -56,6 +56,101 @@ jobs:
                       -p sector-format -p sector-core \
             --no-default-features --target riscv32imc-unknown-none-elf
 
+  # The Raspberry Pi targets, on every PR rather than only at tag time.
+  #
+  # A release-only check means a break is discovered when someone is trying to cut
+  # a release, which is the worst moment to find it. These are the same three ABIs
+  # release.yml ships, and they cover every Pi ever made (docs/PLATFORMS.md maps
+  # model to artifact).
+  #
+  # No apt packages: the rust-lld and link-self-contained flags in
+  # .cargo/config.toml mean these link with no C toolchain and no sysroot, so this
+  # job is a plain rustup target add.
+  cross:
+    name: Cross-compile (${{ matrix.isa }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: arm-unknown-linux-musleabihf
+            isa: v6
+            qemu: qemu-arm-static
+          - target: armv7-unknown-linux-musleabihf
+            isa: v7
+            qemu: qemu-arm-static
+          - target: aarch64-unknown-linux-musl
+            isa: aarch64
+            qemu: qemu-aarch64-static
+    steps:
+      - uses: actions/checkout@v4
+      - run: rustup toolchain install stable --profile minimal --target ${{ matrix.target }}
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends qemu-user-static
+
+      - name: Build
+        run: cargo build --workspace --all-features --target ${{ matrix.target }}
+
+      # The ISA baseline, checked numerically from .ARM.attributes rather than by
+      # grepping readelf output, which renders the tag differently depending on
+      # which readelf ran. An ARMv7 binary installs cleanly on a Pi Zero and then
+      # dies with SIGILL at the first ARMv7-only instruction.
+      - name: Assert the ISA baseline
+        run: python3 scripts/check_isa.py "target/${{ matrix.target }}/release/sector" "${{ matrix.isa }}"
+        continue-on-error: false
+
+      # Run the test suite on the target's own arithmetic. `cargo build` proves it
+      # compiles; only execution catches an alignment or width assumption that
+      # happens to hold on x86-64. The runner is set for the whole workspace, so
+      # every crate's tests go through qemu.
+      - name: Test under qemu
+        env:
+          CARGO_TARGET_ARM_UNKNOWN_LINUX_MUSLEABIHF_RUNNER: qemu-arm-static
+          CARGO_TARGET_ARMV7_UNKNOWN_LINUX_MUSLEABIHF_RUNNER: qemu-arm-static
+          CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_RUNNER: qemu-aarch64-static
+        run: cargo test --workspace --all-features --target ${{ matrix.target }}
+
+      # The end-to-end check an operator would run on a fresh board: build a
+      # volume, query it, verify recall against brute force, corrupt a block and
+      # confirm the corruption is detected.
+      - name: Selftest under qemu
+        run: |
+          set -euo pipefail
+          ${{ matrix.qemu }} "target/${{ matrix.target }}/release/sector" selftest --n 512
+
+  # The ISA check is only worth having if it fails when it should. A decoder bug
+  # that makes it silently pass is the failure mode this guards, and it has
+  # happened once: the first version misread the attribute subsection bounds and
+  # walked off the end of the section.
+  isa-check-self-test:
+    name: ISA check rejects a wrong baseline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          rustup toolchain install stable --profile minimal \
+            --target arm-unknown-linux-musleabihf \
+            --target armv7-unknown-linux-musleabihf
+      - run: |
+          cargo build --release -p sector-cli --target arm-unknown-linux-musleabihf
+          cargo build --release -p sector-cli --target armv7-unknown-linux-musleabihf
+      - name: Correct pairings pass
+        run: |
+          set -euo pipefail
+          python3 scripts/check_isa.py target/arm-unknown-linux-musleabihf/release/sector v6
+          python3 scripts/check_isa.py target/armv7-unknown-linux-musleabihf/release/sector v7
+      - name: Wrong pairings are rejected
+        run: |
+          set -euo pipefail
+          if python3 scripts/check_isa.py target/arm-unknown-linux-musleabihf/release/sector v7; then
+            echo "::error::an ARMv6 binary was accepted as ARMv7; the check is not working"
+            exit 1
+          fi
+          if python3 scripts/check_isa.py target/armv7-unknown-linux-musleabihf/release/sector v6; then
+            echo "::error::an ARMv7 binary was accepted as ARMv6; the check is not working"
+            exit 1
+          fi
+          echo "the check fails when it should"
+
   deny:
     name: Cargo Deny
     runs-on: ubuntu-latest
