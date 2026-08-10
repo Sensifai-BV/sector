@@ -11,10 +11,14 @@
 //! out of reach at `D = 768`, where it is the entire budget. Dimension, not
 //! subspace count, decides whether 8-bit codes are affordable.
 //!
-//! At equal payload size 8-bit codes are worth roughly 2.5x the recall of
-//! 4-bit ones: recall@10 at D=128, m=16, b=8 is 0.605 at R=100 and 0.934 at
-//! R=500, against 0.243 and 0.577 for a b=4 configuration of the same
+//! At equal payload size *and* equal dimension, 8-bit codes measure 1.35x the
+//! recall of 4-bit ones: recall@10 at D=128, m=16, b=8 is 0.605 at R=100 and
+//! 0.934 at R=500, against 0.4485 and 0.788 for D=128, m=32, b=4 at the same
 //! 16 B/vector payload.
+//!
+//! A 2.5x figure appears in earlier documents. It compares 0.605 against 0.243,
+//! which is a D=256, m=32, b=4 measurement — it varies dimension as well as
+//! code width, so it does not support an equal-payload claim.
 
 /// Quantization and retrieval parameters for one target class.
 #[derive(Clone, Copy, Debug)]
@@ -114,9 +118,14 @@ impl Profile {
 /// T0 — ESP32-C3, 160 MHz, no FPU, 4 MB NOR with execute-in-place.
 ///
 /// `D = 128` matches SIFT and the common output width of edge embedding models.
-/// It admits `b = 8` in a 32 KiB codebook, which measures recall@10 of 0.605 at
-/// `R = 100` and 0.934 at `R = 500` on the synthetic corpus, against 0.243 and
-/// 0.577 for a `b = 4` configuration of identical payload size.
+/// It admits `b = 8` in a 32 KiB codebook. Measured on full SIFT1M
+/// (`N = 1,000,000`, 200 queries, shipped ground truth): recall@10 of 0.9605 at
+/// `R = 100` and 0.9975 at `R = 500`. The synthetic corpus gave 0.605 and 0.934
+/// at the same configuration, so it understated real embeddings by 0.36 at the
+/// operating point.
+///
+/// At equal payload and equal dimension a `b = 4` configuration
+/// (`m = 32`) measures 0.4485 at `R = 100` on the synthetic corpus.
 ///
 /// At 16 B/vector the codes are RAM-resident: roughly 9,000 vectors, with
 /// rerank copies in NOR. This differs from the large-`D` case, where codes
@@ -173,6 +182,93 @@ pub const T0_WIDE: Profile = Profile {
     ..T0
 };
 
+/// T2 — 32-bit ARM Linux: Pi 1, Pi Zero, Pi Zero W, Pi 2, and any later board
+/// running a 32-bit userland.
+///
+/// # What sets each parameter
+///
+/// `adc_bytes = 2` is set by the ARM1176 in BCM2835, the weakest member: 16 KiB
+/// of L1 data cache, and no usable L2 (BCM2835's 128 KiB L2 is wired to the
+/// VideoCore). The ADC table is indexed `m` times per vector with no locality,
+/// so it must stay cache-resident or every lookup is a miss. At `m = 16, b = 8`
+/// an i16 table is 8,192 B — half of L1, leaving room for the payload stream.
+/// An i32 table would be 16,384 B, the entire L1, and would evict the codes it
+/// is being used to score.
+///
+/// `m = 16` follows from the same bound. Doubling `m` to T1's 32 doubles the
+/// table with it.
+///
+/// `r = 100` is set by storage, not by RAM, and is the parameter that separates
+/// this tier from T0. Stage two fetches one rerank record per candidate; on a
+/// microSD or eMMC part behind a flash translation layer that is a random read
+/// the FTL services at block granularity, where T0's raw NOR services it as a
+/// load instruction from a mapped window. Candidate depth is therefore charged
+/// at a rate a mapped-NOR tier does not pay, and the recall this costs — 0.605
+/// at `R = 100` against 0.934 at `R = 500`, measured at `D = 128, m = 16,
+/// b = 8` — is the price of the storage rather than of the processor.
+///
+/// # `ram_budget` is a floor, not a target
+///
+/// 32 MiB is what every member of the tier has, including a 256 MB Pi 1 Model A
+/// after BCM2835's minimum 64 MB GPU carve-out. It is not what a 1 GB Pi 2
+/// should use. The figure `resident_vectors()` reports here is the capacity
+/// guaranteed across the tier; a board with more memory raises it at runtime
+/// and the volume's own `N` is what binds in practice. Reading this constant as
+/// a per-board maximum understates a Pi 2 by a factor of 30.
+pub const T2: Profile = Profile {
+    d: 128,
+    m: 16,
+    b: 8,
+    cb_bytes: 1,
+    rerank_bytes: 1,
+    adc_bytes: 2,
+    r: 100,
+    k: 10,
+    ram_budget: 32 * 1024 * 1024,
+    // A hosted process, unlike T0's bare-metal single stack: glibc's main
+    // thread grows to `ulimit -s`, 8 MiB by default. 2 MiB is the reserve for
+    // everything outside the index — the daemon's per-connection state and the
+    // C library's own arenas — on the assumption the engine is not running on
+    // the main thread.
+    stack_reserve: 2 * 1024 * 1024,
+};
+
+/// T3 — 64-bit ARM Linux: Pi Zero 2 W, Pi 2 v1.2, Pi 3, Pi 4, Pi 5.
+///
+/// # What sets each parameter
+///
+/// Every member is Cortex-A53 or later with at least 512 KiB of shared L2, so
+/// the constraint that fixed T2's `adc_bytes` is gone: `m = 32` with i32
+/// accumulators is a 32 KiB table, L2-resident on an A53 and inside a single
+/// A76 core's private L2 on a Pi 5. Finer subspace resolution at 32 B/vector
+/// follows, matching T1.
+///
+/// `r = 500` returns to the depth T2 could not afford. The justification is
+/// memory rather than storage: at 128 B/vector the rerank copies for a
+/// million-vector corpus are 128 MB, so on every board in this tier except the
+/// Zero 2 W they can be held resident and stage two stops touching the FTL at
+/// all. That is the tier's actual advantage, and it is worth stating precisely
+/// because it is easy to mis-attribute: the gain comes from having enough RAM
+/// to eliminate the storage path, not from the processor being faster.
+///
+/// # `ram_budget` is a floor, not a target
+///
+/// 64 MiB is what a 512 MB Pi Zero 2 W can give the index. A 16 GB Pi 5 is
+/// three orders of magnitude away from that and is not described by this
+/// constant; see [`T2`] on why the figure is a floor.
+pub const T3: Profile = Profile {
+    d: 128,
+    m: 32,
+    b: 8,
+    cb_bytes: 1,
+    rerank_bytes: 1,
+    adc_bytes: 4,
+    r: 500,
+    k: 10,
+    ram_budget: 64 * 1024 * 1024,
+    stack_reserve: 8 * 1024 * 1024,
+};
+
 // ---------------------------------------------------------------------------
 // Feasibility. Checked at compile time; a profile that does not fit is a build
 // error, not a runtime failure.
@@ -200,6 +296,57 @@ const _: () = assert!(
 const _: () = assert!(
     T1.fixed_bytes() < T1.ram_budget,
     "T1 fixed set exceeds its budget"
+);
+
+#[allow(clippy::manual_is_multiple_of)]
+const _: () = assert!(T2.d % T2.m == 0, "D must partition into m subspaces");
+#[allow(clippy::manual_is_multiple_of)]
+const _: () = assert!(T3.d % T3.m == 0, "D must partition into m subspaces");
+const _: () = assert!(
+    T2.fixed_bytes() < T2.ram_budget,
+    "T2 fixed set exceeds the tier's floor budget"
+);
+const _: () = assert!(
+    T3.fixed_bytes() < T3.ram_budget,
+    "T3 fixed set exceeds the tier's floor budget"
+);
+
+// The cache bound that fixes T2's accumulator width. ARM1176 in BCM2835 has
+// 16 KiB of L1 data cache and no L2 available to the CPU, and the ADC table is
+// indexed with no locality, so a table exceeding half of L1 evicts the codes it
+// scores. This is the constraint stated in T2's documentation, asserted so a
+// later change to `m` or `adc_bytes` fails the build rather than silently
+// costing a cache miss per lookup.
+const _: () = {
+    const ARM1176_L1_DATA_BYTES: usize = 16 * 1024;
+    assert!(
+        T2.adc_table_bytes() * 2 <= ARM1176_L1_DATA_BYTES,
+        "T2 ADC table exceeds half of ARM1176 L1 data cache"
+    );
+    let widened = Profile { adc_bytes: 4, ..T2 };
+    assert!(
+        widened.adc_table_bytes() == ARM1176_L1_DATA_BYTES,
+        "at m=16, b=8 an i32 ADC table is exactly ARM1176's L1 data cache"
+    );
+};
+
+// T3's table is sized against L2 rather than L1: 32 KiB at m=32 with i32
+// accumulators, against the 512 KiB shared L2 of the weakest member (A53).
+const _: () = {
+    const A53_MIN_L2_BYTES: usize = 512 * 1024;
+    assert!(
+        T3.adc_table_bytes() <= A53_MIN_L2_BYTES / 8,
+        "T3 ADC table is too large a share of the weakest member's L2"
+    );
+};
+
+// The tiers must remain distinguishable in the parameters that define them.
+// T2 and T3 differing only in `ram_budget` would mean the split describes the
+// boards rather than the engine's configuration, and the profile would not be
+// carrying its weight.
+const _: () = assert!(
+    T2.m != T3.m && T2.adc_bytes != T3.adc_bytes && T2.r != T3.r,
+    "T2 and T3 must differ in subspace count, accumulator width and depth"
 );
 
 // The dimension boundary that forces the code width, asserted so the constraint
@@ -244,6 +391,67 @@ mod tests {
     #[test]
     fn t0_rerank_copies_fit_nor() {
         assert!(T0.rerank_capacity(4 * 1024 * 1024) > 30_000);
+    }
+
+    #[test]
+    fn t2_table_stays_within_the_weakest_l1() {
+        // The tier's binding constraint. 8,192 B is half of ARM1176's 16 KiB
+        // L1 data cache; the codes being scored occupy the other half.
+        assert_eq!(T2.adc_table_bytes(), 8 * 1024);
+        assert_eq!(T2.payload_bytes(), 16);
+        assert_eq!(T2.codebook_bytes(), 32 * 1024);
+    }
+
+    #[test]
+    fn t3_doubles_subspace_resolution_over_t2() {
+        // Twice the subspaces at twice the accumulator width: a 32 KiB table,
+        // which needs the L2 that no T2 member has.
+        assert_eq!(T3.adc_table_bytes(), 4 * T2.adc_table_bytes());
+        assert_eq!(T3.payload_bytes(), 32);
+        // The codebook is 2^b * D and does not depend on m, so it is unchanged.
+        assert_eq!(T3.codebook_bytes(), T2.codebook_bytes());
+    }
+
+    #[test]
+    fn pi_tier_floors_hold_a_useful_corpus() {
+        // The floor budgets must leave room for a corpus worth serving, or the
+        // tier is describing a board that cannot run the engine.
+        assert!(
+            T2.resident_vectors() > 1_800_000,
+            "T2 floor holds {} vectors",
+            T2.resident_vectors()
+        );
+        assert!(
+            T3.resident_vectors() > 1_700_000,
+            "T3 floor holds {} vectors",
+            T3.resident_vectors()
+        );
+    }
+
+    #[test]
+    fn a_million_vector_rerank_set_fits_t3_but_not_t2() {
+        // The claim in T3's documentation: at 128 B/vector, a million rerank
+        // copies are 128 MB — resident on a 1 GB+ board, and twice T2's entire
+        // floor budget. This is what buys R=500 back.
+        let million = 1_000_000 * T3.rerank_bytes_per_vec();
+        assert_eq!(million, 128_000_000);
+        assert!(million > 2 * T2.ram_budget);
+    }
+
+    #[test]
+    fn every_tier_fits_its_own_budget() {
+        // The const assertions already enforce this at compile time. Repeated
+        // as a test so a reader sees the property named, and so the failure
+        // message identifies which tier regressed.
+        for (name, p) in [("T0", T0), ("T1", T1), ("T2", T2), ("T3", T3)] {
+            assert!(
+                p.fixed_bytes() < p.ram_budget,
+                "{name} fixed set {} B exceeds budget {} B",
+                p.fixed_bytes(),
+                p.ram_budget
+            );
+            assert!(p.resident_vectors() > 0, "{name} holds no vectors");
+        }
     }
 
     #[test]
