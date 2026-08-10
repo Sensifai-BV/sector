@@ -70,7 +70,7 @@ impl CodebookLayout {
     /// `2x` the bytes of RS(12,8) parity at the same order of budget, with no
     /// GF(2^8) arithmetic.
     pub const fn overhead_ppm(&self, ram_budget: usize) -> usize {
-        (self.replica_region_bytes() * 1_000_000) / ram_budget
+        ((self.replica_region_bytes() as u64 * 1_000_000) / (ram_budget as u64)) as usize
     }
 
     /// Byte offset of `copy`'s `block`, given the region bases.

@@ -342,6 +342,7 @@ fn serve_loop<F>(
         if let Some(l) = &unix {
             match l.accept() {
                 Ok((stream, _)) => {
+                    let _ = stream.set_nonblocking(false);
                     let _ = stream.set_read_timeout(Some(READ_TIMEOUT));
                     let _ = stream.set_write_timeout(Some(WRITE_TIMEOUT));
                     handle_connection(stream, searcher, ctx, shutdown, counters);
@@ -355,6 +356,7 @@ fn serve_loop<F>(
         if let Some(l) = &tcp {
             match l.accept() {
                 Ok((stream, _)) => {
+                    let _ = stream.set_nonblocking(false);
                     let _ = stream.set_read_timeout(Some(READ_TIMEOUT));
                     let _ = stream.set_write_timeout(Some(WRITE_TIMEOUT));
                     let _ = stream.set_nodelay(true);
