@@ -1,0 +1,22 @@
+[package]
+name = "sector-serve"
+version.workspace = true
+edition.workspace = true
+description = "Zero-dependency query daemon for SECTOR volumes: Unix socket and HTTP/1.1 REST on blocking std::net"
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords = ["vector-search", "embedded", "daemon", "http", "linux"]
+categories = ["database-implementations", "web-programming::http-server"]
+
+[dependencies]
+sector-os.workspace = true
+sector-core.workspace = true
+sector-format.workspace = true
+sector-hal.workspace = true
+
+[dev-dependencies]
+sector-os = { workspace = true, features = ["test-support"] }
+
+[lints]
+workspace = true
