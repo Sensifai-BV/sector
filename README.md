@@ -108,9 +108,11 @@ Insert-only: there is no delete and no update, because a validity bitmap would
 add a per-candidate lookup to the scan loop the cost argument is about. `build`
 is how a vector is removed. `--reserve` must be given at build time — without it
 a volume is fixed at its built size. `--dry-run` reports the id gap an append
-would create before writing anything;
-[docs/design/002-append-and-reserve.md](docs/design/002-append-and-reserve.md)
-explains why the gap exists.
+would create before writing anything.
+
+## Benchmarks
+
+See [docs/BENCHMARKS.md](docs/BENCHMARKS.md) for the full benchmark report.
 
 ## Building
 
