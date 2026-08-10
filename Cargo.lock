@@ -29,7 +29,13 @@ name = "sector-cli"
 version = "0.1.0"
 dependencies = [
  "sector-build",
+ "sector-codec",
+ "sector-core",
  "sector-format",
+ "sector-hal",
+ "sector-os",
+ "sector-quant",
+ "sector-serve",
  "sector-sim",
 ]
 
@@ -60,8 +66,30 @@ name = "sector-hal"
 version = "0.1.0"
 
 [[package]]
+name = "sector-os"
+version = "0.1.0"
+dependencies = [
+ "sector-build",
+ "sector-codec",
+ "sector-core",
+ "sector-format",
+ "sector-hal",
+ "sector-quant",
+]
+
+[[package]]
 name = "sector-quant"
 version = "0.1.0"
+
+[[package]]
+name = "sector-serve"
+version = "0.1.0"
+dependencies = [
+ "sector-core",
+ "sector-format",
+ "sector-hal",
+ "sector-os",
+]
 
 [[package]]
 name = "sector-sim"

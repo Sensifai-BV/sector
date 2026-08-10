@@ -7,8 +7,8 @@ resolver = "2"
 version = "0.1.0"
 edition = "2021"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/ja7ad/sector"
-homepage = "https://github.com/ja7ad/sector"
+repository = "https://github.com/Sensifai-BV/sector"
+homepage = "https://github.com/Sensifai-BV/sector"
 
 [workspace.dependencies]
 sector-hal = { version = "0.1.0", path = "crates/sector-hal" }
@@ -18,6 +18,8 @@ sector-format = { version = "0.1.0", path = "crates/sector-format" }
 sector-core = { version = "0.1.0", path = "crates/sector-core" }
 sector-build = { version = "0.1.0", path = "crates/sector-build" }
 sector-sim = { version = "0.1.0", path = "crates/sector-sim" }
+sector-os = { version = "0.1.0", path = "crates/sector-os" }
+sector-serve = { version = "0.1.0", path = "crates/sector-serve" }
 
 [workspace.lints.clippy]
 all = "deny"
