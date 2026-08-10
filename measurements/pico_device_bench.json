@@ -1,0 +1,57 @@
+{
+  "measurement": "pico_device_bench",
+  "platform": {
+    "board": "raspberry-pi-pico",
+    "mcu": "RP2040",
+    "core": "Cortex-M0+",
+    "isa": "thumbv6m-none-eabi",
+    "cpu_clock_hz": 125000000
+  },
+  "provenance": "physical device timebase (TIMERAWL, 1 MHz watchdog tick); NOT emulated",
+  "config": {
+    "d": 128,
+    "m": 16,
+    "b": 8,
+    "centroids": 256,
+    "n": 2000,
+    "r": 100
+  },
+  "budgets_bytes": {
+    "resident_table": 16384,
+    "resident_heap": 800,
+    "resident_codes": 32000
+  },
+  "calibration": {
+    "instructions_per_iter": 8,
+    "iters": 100000,
+    "us": 7200,
+    "ns_per_iter": 72,
+    "cycles_per_iter": 9.0,
+    "cycles_per_instruction": 1.125,
+    "note": "8 Thumb instructions verified by llvm-objdump at 0x100006e2; 7*1 + 2-3 for the taken branch predicts 9-10 cycles"
+  },
+  "scan": {
+    "scalar_us_per_query": 8569,
+    "scalar_ns_per_vector": 4284,
+    "x4_us_per_query": 7882,
+    "x4_ns_per_vector": 3941,
+    "cycles_per_vector_scalar": 535.6,
+    "cycles_per_code_scalar": 33.47,
+    "x4_speedup": 1.0872
+  },
+  "workload_identity": {
+    "evictions_per_query": 327,
+    "note": "identical to the ESP32 runs (6540/20), same seed and corpus, so the cross-ISA comparison is of the silicon"
+  },
+  "four_wide_verdict": {
+    "measured_speedup": 1.0872,
+    "instruction_count_prediction_rv32imc": 1.391,
+    "m_loop_instructions": 33,
+    "m_loop_codes": 4,
+    "m_loop_stack_accesses": 9,
+    "mechanism": "Cortex-M0+ has 8 low registers and Thumb-1 data ops cannot reach r8-r12; four accumulators plus base/pointer/index/counter do not fit, so accumulators spill to the stack every iteration"
+  },
+  "open": {
+    "half_clock_discriminator": "cargo build --release --features half-clock rebuilds PLL_SYS at 62.5 MHz; a physical timebase must report ~144 ns/iter, a host-wall-clock timer 72"
+  }
+}

@@ -1,4 +1,4 @@
-.PHONY: all fmt fmt-check lint test nostd asm-check asm-check-riscv asm-check-thumb chip build-t0 lint-t0 test-t0 deny check-all clean
+.PHONY: all fmt fmt-check lint test nostd asm-check asm-check-riscv asm-check-thumb chip build-t0 lint-t0 test-t0 build-pico wokwi-pico deny check-all clean
 
 all: check-all
 
@@ -76,6 +76,18 @@ test-t0:
 
 deny:
 	cargo deny check
+
+# Pico (RP2040) benchmark firmware. Separate target because this crate is
+# excluded from the root workspace: it has its own .cargo/config.toml pinning
+# thumbv6m-none-eabi.
+build-pico:
+	cd targets/rp2040 && cargo build --release
+
+# Emulated Pico run. Needs WOKWI_CLI_TOKEN and network reach to wokwi.com, so it
+# is invoked explicitly rather than from check-all -- a check that SKIPs when its
+# prerequisites are absent would report green without testing anything.
+wokwi-pico: build-pico
+	scripts/wokwi_pico.sh
 
 check-all: fmt-check lint test test-t0 nostd asm-check build-t0 lint-t0 deny
 	@echo "All checks passed."

@@ -1,0 +1,51 @@
+version: 1
+name: "SECTOR Pico benchmark"
+author: "SECTOR"
+description: "Boot the Pico firmware, assert the timebase is live, and read the two scan shapes"
+steps:
+  - wait-serial: "sector-bench-pico v1"
+
+  # The configuration must print before any number, so a figure lifted out of
+  # this log carries the profile it was measured at.
+  - wait-serial: "config m=16 b=8 centroids=256"
+
+  # 125 MHz is what init_clocks_and_plls sets. A part left on the ring oscillator
+  # reports ~6.5 MHz here, and every latency figure taken under it is ~19x too
+  # large -- which is the failure this line catches at the source.
+  - wait-serial: "cpu_clock_hz=125000000"
+
+  # Resident working set, from the same arithmetic the host uses: the ADC table
+  # is m * 2^b * 4 = 16,384 B and the heap is R * 8 = 800 B. A different number
+  # means the profile arithmetic and the firmware disagree.
+  - wait-serial: "resident_table_bytes=16384"
+  - wait-serial: "resident_heap_bytes=800"
+
+  # The TIMER block is clocked by watchdog tick generation, which is not on by
+  # default. Without it TIMERAWL never advances and every interval below reads
+  # zero. Asserting 1 here rejects a run that would otherwise report 0 ns per
+  # vector as though it were a measurement.
+  - wait-serial: "timebase_ok=1"
+
+  # Fixed-work calibration of known instruction count. Under emulation the
+  # absolute microsecond figures belong to the host rather than the part, so this
+  # is what lets a reader normalise the scan numbers by host speed and compare
+  # the two scan shapes as work.
+  - wait-serial: "calib_iters=100000"
+  - wait-serial: "calib_ns_per_iter="
+
+  # The scan must actually run and report a per-vector cost. A zero here would be
+  # an absence dressed as a measurement.
+  - wait-serial: "scan_us_per_query="
+  - wait-serial: "scan_ns_per_vector="
+
+  # Evictions prove the bounded heap did real work: with R=100 against 2,000
+  # scanned vectors the heap must have displaced incumbents. Zero evictions would
+  # mean the threshold test rejected everything, making the latency figure
+  # meaningless.
+  - wait-serial: "evictions_total="
+
+  # The four-chain variant on an in-order core with a longer load-use penalty --
+  # the comparison this firmware exists for.
+  - wait-serial: "scan_x4_us_per_query="
+
+  - wait-serial: "PICO_BENCH_DONE"

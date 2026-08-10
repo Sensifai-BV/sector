@@ -101,6 +101,13 @@ fn main() -> ! {
     // Brings the core to 125 MHz and starts watchdog tick generation. The tick
     // is what clocks the TIMER block, so this call is load-bearing for the
     // measurement and not only for speed.
+    //
+    // Under `--features half-clock` the PLL is reconfigured to 62.5 MHz
+    // afterwards. That is the timebase discriminator: a physical counter must
+    // report ~2x the ns-per-iteration for the same instruction count, whereas a
+    // timer reporting emulation-host wall clock reports the same number at both
+    // settings, which is what the ESP32 runs did.
+    #[cfg(not(feature = "half-clock"))]
     let clocks = init_clocks_and_plls(
         XOSC_CRYSTAL_FREQ,
         pac.XOSC,
@@ -112,6 +119,54 @@ fn main() -> ! {
     )
     .ok()
     .unwrap();
+
+    // Half-clock build: the same tree, with clk_sys at 62.5 MHz.
+    //
+    // 1500 MHz VCO / 6 / 4 = 62.5 MHz, against the stock /6/2 = 125 MHz. Only the
+    // system PLL's post-divider differs; the watchdog tick still comes off the
+    // 12 MHz crystal, so the timer's 1 MHz reference is unchanged and the two
+    // builds are directly comparable.
+    #[cfg(feature = "half-clock")]
+    let clocks = {
+        use rp2040_hal::clocks::ClocksManager;
+        use rp2040_hal::pll::{setup_pll_blocking, PLLConfig};
+        use rp2040_hal::xosc::setup_xosc_blocking;
+
+        const PLL_SYS_62_5MHZ: PLLConfig = PLLConfig {
+            vco_freq: rp2040_hal::fugit::HertzU32::MHz(1500),
+            refdiv: 1,
+            post_div1: 6,
+            post_div2: 4,
+        };
+
+        let xosc = setup_xosc_blocking(pac.XOSC, XOSC_CRYSTAL_FREQ.Hz())
+            .ok()
+            .unwrap();
+        // The TIMER block is clocked from this tick; without it TIMERAWL never
+        // advances, exactly as in the default path.
+        watchdog.enable_tick_generation((XOSC_CRYSTAL_FREQ / 1_000_000) as u8);
+        let mut clocks = ClocksManager::new(pac.CLOCKS);
+        let pll_sys = setup_pll_blocking(
+            pac.PLL_SYS,
+            xosc.operating_frequency(),
+            PLL_SYS_62_5MHZ,
+            &mut clocks,
+            &mut pac.RESETS,
+        )
+        .ok()
+        .unwrap();
+        let pll_usb = setup_pll_blocking(
+            pac.PLL_USB,
+            xosc.operating_frequency(),
+            rp2040_hal::pll::common_configs::PLL_USB_48MHZ,
+            &mut clocks,
+            &mut pac.RESETS,
+        )
+        .ok()
+        .unwrap();
+        clocks.init_default(&xosc, &pll_sys, &pll_usb).ok().unwrap();
+        clocks
+    };
 
     let pins = Pins::new(
         pac.IO_BANK0,

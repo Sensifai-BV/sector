@@ -27,6 +27,15 @@ rp2040-boot2 = "0.3.0"
 default = []
 # Drive GPIO pins at phase boundaries for logic-analyzer timing.
 gpio-phases = []
+# Run the core at half speed to test whether the timebase is physical.
+#
+# The ESP32 work established that Wokwi's timer reports emulation-host wall
+# clock: doubling the emulated clock left every timing byte-identical. This
+# feature applies the same discriminator here. A physical timebase must report
+# ~2x the ns-per-iteration at half the clock; a host-wall-clock timebase reports
+# the same number. Nothing else about the build changes, so the comparison is of
+# the clock alone.
+half-clock = []
 
 [profile.release]
 opt-level = "s"
