@@ -1,0 +1,1106 @@
+[
+ {
+  "key": "recall@10 R=10 SIFT1M N=1e6",
+  "value": 0.5295,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=1000000 k=10 nq=200 train_n=100000",
+  "source": "opt_1000000_recall.json",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=50 SIFT1M N=1e6",
+  "value": 0.893,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=1000000 k=10 nq=200 train_n=100000",
+  "source": "opt_1000000_recall.json",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=100 SIFT1M N=1e6",
+  "value": 0.9605,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=1000000 k=10 nq=200 train_n=100000",
+  "source": "opt_1000000_recall.json",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=500 SIFT1M N=1e6",
+  "value": 0.9975,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=1000000 k=10 nq=200 train_n=100000",
+  "source": "opt_1000000_recall.json",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=1000 SIFT1M N=1e6",
+  "value": 0.9995,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=1000000 k=10 nq=200 train_n=100000",
+  "source": "opt_1000000_recall.json",
+  "note": ""
+ },
+ {
+  "key": "stage-one (PQ only) recall@10 SIFT1M N=1e6",
+  "value": 0.5295,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=1000000 k=10 nq=200 train_n=100000",
+  "source": "opt_1000000_recall.json",
+  "note": "constant across R: stage one is the same scan"
+ },
+ {
+  "key": "recall@10 R=10 SIFT1M N=1e5",
+  "value": 0.633,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=100000 k=10 nq=200 train_n=100000",
+  "source": "opt_100000_recall.json",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=50 SIFT1M N=1e5",
+  "value": 0.967,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=100000 k=10 nq=200 train_n=100000",
+  "source": "opt_100000_recall.json",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=100 SIFT1M N=1e5",
+  "value": 0.9895,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=100000 k=10 nq=200 train_n=100000",
+  "source": "opt_100000_recall.json",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=500 SIFT1M N=1e5",
+  "value": 1.0,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=100000 k=10 nq=200 train_n=100000",
+  "source": "opt_100000_recall.json",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=1000 SIFT1M N=1e5",
+  "value": 1.0,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=100000 k=10 nq=200 train_n=100000",
+  "source": "opt_100000_recall.json",
+  "note": ""
+ },
+ {
+  "key": "p50 query latency N=1e5",
+  "value": 4.8879,
+  "unit": "ms",
+  "config": "D=128 m=16 b=8 N=100000 R=100 Pi4B single-thread",
+  "source": "opt_100000_perf.json",
+  "note": "median; distribution at N=1e6 is bimodal"
+ },
+ {
+  "key": "p95 query latency N=1e5",
+  "value": 4.9502,
+  "unit": "ms",
+  "config": "D=128 m=16 b=8 N=100000 R=100 Pi4B single-thread",
+  "source": "opt_100000_perf.json",
+  "note": ""
+ },
+ {
+  "key": "p99 query latency N=1e5",
+  "value": 4.9666,
+  "unit": "ms",
+  "config": "D=128 m=16 b=8 N=100000 R=100 Pi4B single-thread",
+  "source": "opt_100000_perf.json",
+  "note": ""
+ },
+ {
+  "key": "scan share of query time N=1e5",
+  "value": 960,
+  "unit": "permille",
+  "config": "D=128 m=16 b=8 N=100000 R=100 Pi4B single-thread",
+  "source": "opt_100000_perf.json",
+  "note": ""
+ },
+ {
+  "key": "p50 query latency N=1e6",
+  "value": 45.8723,
+  "unit": "ms",
+  "config": "D=128 m=16 b=8 N=1000000 R=100 Pi4B single-thread",
+  "source": "opt_1000000_perf.json",
+  "note": "median; distribution at N=1e6 is bimodal"
+ },
+ {
+  "key": "p95 query latency N=1e6",
+  "value": 138.8233,
+  "unit": "ms",
+  "config": "D=128 m=16 b=8 N=1000000 R=100 Pi4B single-thread",
+  "source": "opt_1000000_perf.json",
+  "note": ""
+ },
+ {
+  "key": "p99 query latency N=1e6",
+  "value": 139.0425,
+  "unit": "ms",
+  "config": "D=128 m=16 b=8 N=1000000 R=100 Pi4B single-thread",
+  "source": "opt_1000000_perf.json",
+  "note": ""
+ },
+ {
+  "key": "scan share of query time N=1e6",
+  "value": 995,
+  "unit": "permille",
+  "config": "D=128 m=16 b=8 N=1000000 R=100 Pi4B single-thread",
+  "source": "opt_1000000_perf.json",
+  "note": ""
+ },
+ {
+  "key": "p50 query latency GIST N=1e5",
+  "value": 32.3694,
+  "unit": "ms",
+  "config": "D=960 m=120 b=6 N=100000 R=100 Pi4B single-thread",
+  "source": "gist_120_6_perf.json",
+  "note": "median; distribution at N=1e6 is bimodal"
+ },
+ {
+  "key": "p95 query latency GIST N=1e5",
+  "value": 32.5305,
+  "unit": "ms",
+  "config": "D=960 m=120 b=6 N=100000 R=100 Pi4B single-thread",
+  "source": "gist_120_6_perf.json",
+  "note": ""
+ },
+ {
+  "key": "p99 query latency GIST N=1e5",
+  "value": 32.8142,
+  "unit": "ms",
+  "config": "D=960 m=120 b=6 N=100000 R=100 Pi4B single-thread",
+  "source": "gist_120_6_perf.json",
+  "note": ""
+ },
+ {
+  "key": "scan share of query time GIST N=1e5",
+  "value": 985,
+  "unit": "permille",
+  "config": "D=960 m=120 b=6 N=100000 R=100 Pi4B single-thread",
+  "source": "gist_120_6_perf.json",
+  "note": ""
+ },
+ {
+  "key": "index image SIFT1M N=1e6",
+  "value": 145.2,
+  "unit": "MB",
+  "config": "D=128 m=16 b=8 N=1000000 k=10 nq=200 train_n=100000",
+  "source": "sift1m_budget.json",
+  "note": ""
+ },
+ {
+  "key": "stored bytes per vector N=1e6",
+  "value": 145.19,
+  "unit": "B/vector",
+  "config": "D=128 m=16 b=8 N=1000000 k=10 nq=200 train_n=100000",
+  "source": "sift1m_budget.json",
+  "note": ""
+ },
+ {
+  "key": "protection fraction N=1e6",
+  "value": 0.797,
+  "unit": "% of stored bytes",
+  "config": "D=128 m=16 b=8 N=1000000 k=10 nq=200 train_n=100000",
+  "source": "sift1m_budget.json",
+  "note": "one codebook replica + out-of-line CRC arrays"
+ },
+ {
+  "key": "protection fraction N=5e3",
+  "value": 4.851,
+  "unit": "% of stored bytes",
+  "config": "D=128 m=16 b=8 N=5000",
+  "source": "sift_slice_budget.json",
+  "note": "fixed replica cost, so the share falls as N grows"
+ },
+ {
+  "key": "budget: codebook size",
+  "value": 32768.0,
+  "unit": "bytes",
+  "config": "D=128 m=16 b=8 N=1000000 k=10 nq=200 train_n=100000",
+  "source": "sift1m_budget.json",
+  "note": "predicted 32768, verdict holds"
+ },
+ {
+  "key": "budget: payload per vector",
+  "value": 16.0,
+  "unit": "bytes",
+  "config": "D=128 m=16 b=8 N=1000000 k=10 nq=200 train_n=100000",
+  "source": "sift1m_budget.json",
+  "note": "predicted 16, verdict holds"
+ },
+ {
+  "key": "budget: codes array",
+  "value": 16000000.0,
+  "unit": "bytes",
+  "config": "D=128 m=16 b=8 N=1000000 k=10 nq=200 train_n=100000",
+  "source": "sift1m_budget.json",
+  "note": "predicted 16000000, verdict holds"
+ },
+ {
+  "key": "index build time SIFT1M N=1e6",
+  "value": 617.6,
+  "unit": "s",
+  "config": "D=128 m=16 b=8 N=1000000 k=10 nq=200 train_n=100000",
+  "source": "opt_1000000_recall.json",
+  "note": "same-run figure; an earlier run of the same config measured 429.7 s (sift1m_recall.json), so host variance is ~1.4x"
+ },
+ {
+  "key": "recall@10 R=10 GIST1M T0 m=60 b=4",
+  "value": 0.187,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=200 shipped GT",
+  "source": "BENCHMARKS.md \u00a79",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=50 GIST1M T0 m=60 b=4",
+  "value": 0.443,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=200 shipped GT",
+  "source": "BENCHMARKS.md \u00a79",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=100 GIST1M T0 m=60 b=4",
+  "value": 0.579,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=200 shipped GT",
+  "source": "BENCHMARKS.md \u00a79",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=500 GIST1M T0 m=60 b=4",
+  "value": 0.871,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=200 shipped GT",
+  "source": "BENCHMARKS.md \u00a79",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=1000 GIST1M T0 m=60 b=4",
+  "value": 0.9425,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=200 shipped GT",
+  "source": "BENCHMARKS.md \u00a79",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=10 GIST1M T0 m=120 b=6",
+  "value": 0.45,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=200 shipped GT",
+  "source": "BENCHMARKS.md \u00a79",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=50 GIST1M T0 m=120 b=6",
+  "value": 0.851,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=200 shipped GT",
+  "source": "BENCHMARKS.md \u00a79",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=100 GIST1M T0 m=120 b=6",
+  "value": 0.94,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=200 shipped GT",
+  "source": "BENCHMARKS.md \u00a79",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=500 GIST1M T0 m=120 b=6",
+  "value": 0.9975,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=200 shipped GT",
+  "source": "BENCHMARKS.md \u00a79",
+  "note": ""
+ },
+ {
+  "key": "recall@10 R=1000 GIST1M T0 m=120 b=6",
+  "value": 1.0,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=200 shipped GT",
+  "source": "BENCHMARKS.md \u00a79",
+  "note": ""
+ },
+ {
+  "key": "p50 query latency GIST1M b=6",
+  "value": 32.369,
+  "unit": "ms",
+  "config": "D=960 m=120 b=6 N=1e5 R=100",
+  "source": "gist_120_6_perf.json",
+  "note": ""
+ },
+ {
+  "key": "b=8 codebook fits T0 up to D",
+  "value": 735,
+  "unit": "dimension",
+  "config": "T0 ram_budget=196608 B",
+  "source": "gist_feasibility.json",
+  "note": ""
+ },
+ {
+  "key": "b=8 codebook first fails at D",
+  "value": 736,
+  "unit": "dimension",
+  "config": "T0 ram_budget=196608 B",
+  "source": "gist_feasibility.json",
+  "note": ""
+ },
+ {
+  "key": "T0 configs fitting at D=960",
+  "value": 32,
+  "unit": "of 48",
+  "config": "D=960 grid",
+  "source": "gist_feasibility.json",
+  "note": ""
+ },
+ {
+  "key": "T0 configs at b=8 fitting at D=960",
+  "value": 0,
+  "unit": "count",
+  "config": "D=960 grid",
+  "source": "gist_feasibility.json",
+  "note": ""
+ },
+ {
+  "key": "recall under codebook bit flips dose=1",
+  "value": 1.0,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=3000 R=100 k=10 nq=50 clean=1.0",
+  "source": "sift_slice_faults.json",
+  "note": "loss 0.0"
+ },
+ {
+  "key": "recall under codebook bit flips dose=4",
+  "value": 1.0,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=3000 R=100 k=10 nq=50 clean=1.0",
+  "source": "sift_slice_faults.json",
+  "note": "loss 0.0"
+ },
+ {
+  "key": "recall under codebook bit flips dose=16",
+  "value": 1.0,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=3000 R=100 k=10 nq=50 clean=1.0",
+  "source": "sift_slice_faults.json",
+  "note": "loss 0.0"
+ },
+ {
+  "key": "recall under codebook bit flips dose=64",
+  "value": 0.998,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=3000 R=100 k=10 nq=50 clean=1.0",
+  "source": "sift_slice_faults.json",
+  "note": "loss 0.002"
+ },
+ {
+  "key": "recall under codebook bit flips dose=256",
+  "value": 0.982,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=3000 R=100 k=10 nq=50 clean=1.0",
+  "source": "sift_slice_faults.json",
+  "note": "loss 0.018"
+ },
+ {
+  "key": "recall under payload bit flips dose=16",
+  "value": 1.0,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=3000 R=100 k=10 nq=50 clean=1.0",
+  "source": "sift_slice_faults.json",
+  "note": "loss 0.0"
+ },
+ {
+  "key": "recall under payload bit flips dose=256",
+  "value": 0.998,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=3000 R=100 k=10 nq=50 clean=1.0",
+  "source": "sift_slice_faults.json",
+  "note": "loss 0.002"
+ },
+ {
+  "key": "recall under payload bit flips dose=4096",
+  "value": 0.97,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=3000 R=100 k=10 nq=50 clean=1.0",
+  "source": "sift_slice_faults.json",
+  "note": "loss 0.03"
+ },
+ {
+  "key": "recall under payload bit flips dose=16384",
+  "value": 0.81,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=3000 R=100 k=10 nq=50 clean=1.0",
+  "source": "sift_slice_faults.json",
+  "note": "loss 0.19"
+ },
+ {
+  "key": "recall under payload block drops dose=1",
+  "value": 0.994,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=3000 R=100 k=10 nq=50 clean=1.0",
+  "source": "sift_slice_faults.json",
+  "note": "loss 0.006"
+ },
+ {
+  "key": "recall under payload block drops dose=4",
+  "value": 0.974,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=3000 R=100 k=10 nq=50 clean=1.0",
+  "source": "sift_slice_faults.json",
+  "note": "loss 0.026"
+ },
+ {
+  "key": "recall under payload block drops dose=16",
+  "value": 0.876,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=3000 R=100 k=10 nq=50 clean=1.0",
+  "source": "sift_slice_faults.json",
+  "note": "loss 0.124"
+ },
+ {
+  "key": "recall under payload block drops dose=64",
+  "value": 0.554,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=3000 R=100 k=10 nq=50 clean=1.0",
+  "source": "sift_slice_faults.json",
+  "note": "loss 0.446"
+ },
+ {
+  "key": "recall under correlated codebook sector failure dose=4096",
+  "value": 0.996,
+  "unit": "recall",
+  "config": "D=128 m=16 b=8 N=3000 R=100 k=10 nq=50 clean=1.0",
+  "source": "sift_slice_faults.json",
+  "note": "loss 0.004"
+ },
+ {
+  "key": "sqlite-vec [exact] recall@10 D=128",
+  "value": 1.0,
+  "unit": "recall",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "sqlite-vec [exact] p50 D=128",
+  "value": 143.23,
+  "unit": "ms",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "sqlite-vec index bytes D=128",
+  "value": 53702656,
+  "unit": "B",
+  "config": "D=128 N=100000",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "usearch [connectivity=16,expansion_search=64] recall@10 D=128",
+  "value": 0.9945000000000003,
+  "unit": "recall",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "usearch [connectivity=16,expansion_search=64] p50 D=128",
+  "value": 1.47,
+  "unit": "ms",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "usearch index bytes D=128",
+  "value": 85284816,
+  "unit": "B",
+  "config": "D=128 N=100000",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "usearch [connectivity=16,expansion_search=128] recall@10 D=128",
+  "value": 0.9970000000000002,
+  "unit": "recall",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "usearch [connectivity=16,expansion_search=128] p50 D=128",
+  "value": 1.69,
+  "unit": "ms",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "usearch [connectivity=16,expansion_search=256] recall@10 D=128",
+  "value": 0.9995,
+  "unit": "recall",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "usearch [connectivity=16,expansion_search=256] p50 D=128",
+  "value": 2.62,
+  "unit": "ms",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=1] recall@10 D=128",
+  "value": 0.4055,
+  "unit": "recall",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=1] p50 D=128",
+  "value": 16.71,
+  "unit": "ms",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb index bytes D=128",
+  "value": 53517777,
+  "unit": "B",
+  "config": "D=128 N=100000",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=4] recall@10 D=128",
+  "value": 0.7469999999999998,
+  "unit": "recall",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=4] p50 D=128",
+  "value": 17.15,
+  "unit": "ms",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=16] recall@10 D=128",
+  "value": 0.9595000000000006,
+  "unit": "recall",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=16] p50 D=128",
+  "value": 19.09,
+  "unit": "ms",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=64] recall@10 D=128",
+  "value": 0.9955000000000002,
+  "unit": "recall",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=64] p50 D=128",
+  "value": 25.34,
+  "unit": "ms",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "qdrant (local mode) [exact] recall@10 D=128",
+  "value": 1.0,
+  "unit": "recall",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "qdrant (local mode) [exact] p50 D=128",
+  "value": 243.68,
+  "unit": "ms",
+  "config": "D=128 N=100000 nq=200",
+  "source": "baselines_100k.json",
+  "note": ""
+ },
+ {
+  "key": "sqlite-vec [exact] recall@10 D=960",
+  "value": 1.0,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "sqlite-vec [exact] p50 D=960",
+  "value": 919.48,
+  "unit": "ms",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "sqlite-vec index bytes D=960",
+  "value": 388018176,
+  "unit": "B",
+  "config": "D=960 N=100000",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "usearch [connectivity=16,expansion_search=64] recall@10 D=960",
+  "value": 0.9449999999999998,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "usearch [connectivity=16,expansion_search=64] p50 D=960",
+  "value": 7.49,
+  "unit": "ms",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "usearch index bytes D=960",
+  "value": 555046864,
+  "unit": "B",
+  "config": "D=960 N=100000",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "usearch [connectivity=16,expansion_search=128] recall@10 D=960",
+  "value": 0.958,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "usearch [connectivity=16,expansion_search=128] p50 D=960",
+  "value": 4.45,
+  "unit": "ms",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "usearch [connectivity=16,expansion_search=256] recall@10 D=960",
+  "value": 0.9840000000000001,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "usearch [connectivity=16,expansion_search=256] p50 D=960",
+  "value": 7.28,
+  "unit": "ms",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=1] recall@10 D=960",
+  "value": 0.25300000000000006,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=1] p50 D=960",
+  "value": 18.47,
+  "unit": "ms",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb index bytes D=960",
+  "value": 388221340,
+  "unit": "B",
+  "config": "D=960 N=100000",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=4] recall@10 D=960",
+  "value": 0.5660000000000001,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=4] p50 D=960",
+  "value": 20.58,
+  "unit": "ms",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=16] recall@10 D=960",
+  "value": 0.7080000000000001,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=16] p50 D=960",
+  "value": 25.72,
+  "unit": "ms",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=64] recall@10 D=960",
+  "value": 0.7240000000000002,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "lancedb [num_partitions=316,num_sub_vectors=16,nprobes=64] p50 D=960",
+  "value": 46.52,
+  "unit": "ms",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "qdrant (local mode) [exact] recall@10 D=960",
+  "value": 1.0,
+  "unit": "recall",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "qdrant (local mode) [exact] p50 D=960",
+  "value": 1579.11,
+  "unit": "ms",
+  "config": "D=960 N=100000 nq=100",
+  "source": "gist_baselines.json",
+  "note": ""
+ },
+ {
+  "key": "SECTOR index D=128 N=1e5",
+  "value": 14.5,
+  "unit": "MB",
+  "config": "D=128 m=16 b=8 N=1e5",
+  "source": "BENCHMARKS.md \u00a75",
+  "note": ""
+ },
+ {
+  "key": "SECTOR index D=960 N=1e5 b=6",
+  "value": 105.1,
+  "unit": "MB",
+  "config": "D=960 m=120 b=6 N=1e5",
+  "source": "BENCHMARKS.md \u00a79",
+  "note": ""
+ },
+ {
+  "key": "RP2040 calibration",
+  "value": 72,
+  "unit": "ns per 8-instruction iter",
+  "config": "RP2040 Cortex-M0+ 125 MHz TIMERAWL",
+  "source": "pico_device_bench.json",
+  "note": "1.125 cycles/instruction"
+ },
+ {
+  "key": "RP2040 scan scalar",
+  "value": 4284,
+  "unit": "ns/vector",
+  "config": "D=128 m=16 b=8 N=2000 R=100",
+  "source": "pico_device_bench.json",
+  "note": ""
+ },
+ {
+  "key": "RP2040 scan cycles per vector",
+  "value": 535.6,
+  "unit": "cycles/vector",
+  "config": "RP2040 125 MHz",
+  "source": "pico_device_bench.json",
+  "note": ""
+ },
+ {
+  "key": "RP2040 scan cycles per code",
+  "value": 33.47,
+  "unit": "cycles/code",
+  "config": "m=16",
+  "source": "pico_device_bench.json",
+  "note": ""
+ },
+ {
+  "key": "RP2040 four-wide speedup",
+  "value": 1.0872,
+  "unit": "x",
+  "config": "RP2040",
+  "source": "pico_device_bench.json",
+  "note": "against 1.391x predicted from RV32IMC instruction counts"
+ },
+ {
+  "key": "RP2040 evictions per query",
+  "value": 327,
+  "unit": "count",
+  "config": "N=2000 R=100",
+  "source": "pico_device_bench.json",
+  "note": "identical to the ESP32 runs, so cross-ISA comparison is of the silicon"
+ },
+ {
+  "key": "firmware esp32c2 bench",
+  "value": 1096648,
+  "unit": "B",
+  "config": "riscv32imc-unknown-none-elf",
+  "source": "build_matrix.csv",
+  "note": "PASS"
+ },
+ {
+  "key": "firmware esp32c3 bench",
+  "value": 1146296,
+  "unit": "B",
+  "config": "riscv32imc-unknown-none-elf",
+  "source": "build_matrix.csv",
+  "note": "PASS"
+ },
+ {
+  "key": "firmware esp32c5 bench",
+  "value": 1054576,
+  "unit": "B",
+  "config": "riscv32imac-unknown-none-elf",
+  "source": "build_matrix.csv",
+  "note": "PASS"
+ },
+ {
+  "key": "firmware esp32c6 bench",
+  "value": 1316428,
+  "unit": "B",
+  "config": "riscv32imac-unknown-none-elf",
+  "source": "build_matrix.csv",
+  "note": "PASS"
+ },
+ {
+  "key": "firmware esp32c61 bench",
+  "value": 1006756,
+  "unit": "B",
+  "config": "riscv32imac-unknown-none-elf",
+  "source": "build_matrix.csv",
+  "note": "PASS"
+ },
+ {
+  "key": "firmware esp32h2 bench",
+  "value": 1140800,
+  "unit": "B",
+  "config": "riscv32imac-unknown-none-elf",
+  "source": "build_matrix.csv",
+  "note": "PASS"
+ },
+ {
+  "key": "firmware esp32 bench",
+  "value": 2090000,
+  "unit": "B",
+  "config": "xtensa-esp32-none-elf",
+  "source": "build_matrix.csv",
+  "note": "PASS"
+ },
+ {
+  "key": "firmware esp32s2 bench",
+  "value": 2055400,
+  "unit": "B",
+  "config": "xtensa-esp32s2-none-elf",
+  "source": "build_matrix.csv",
+  "note": "PASS"
+ },
+ {
+  "key": "firmware esp32s3 bench",
+  "value": 2316304,
+  "unit": "B",
+  "config": "xtensa-esp32s3-none-elf",
+  "source": "build_matrix.csv",
+  "note": "PASS"
+ },
+ {
+  "key": "firmware RP2040 bench",
+  "value": 128328,
+  "unit": "B",
+  "config": "thumbv6m-none-eabi",
+  "source": "BENCHMARKS.md \u00a78",
+  "note": ""
+ },
+ {
+  "key": "T0 RAM budget",
+  "value": 196608,
+  "unit": "B",
+  "config": "D=128 m=16 b=8 int8 R=500",
+  "source": "sector-format::profile T0",
+  "note": ""
+ },
+ {
+  "key": "T0 resident vectors",
+  "value": 8966,
+  "unit": "count",
+  "config": "D=128 m=16 b=8, 192 KiB budget",
+  "source": "sector-format::profile test",
+  "note": ""
+ },
+ {
+  "key": "T0 codebook",
+  "value": 32768,
+  "unit": "B",
+  "config": "2^8 * 128 * 1 B",
+  "source": "sector-format::profile",
+  "note": ""
+ },
+ {
+  "key": "T0 ADC table",
+  "value": 16384,
+  "unit": "B",
+  "config": "m=16 * 256 centroids * 4 B",
+  "source": "pico_device_bench.json budgets_bytes",
+  "note": ""
+ },
+ {
+  "key": "T0 heap",
+  "value": 800,
+  "unit": "B",
+  "config": "R=100 bounded heap",
+  "source": "pico_device_bench.json budgets_bytes",
+  "note": ""
+ },
+ {
+  "key": "T0 stack reserve",
+  "value": 8192,
+  "unit": "B",
+  "config": "T0 profile",
+  "source": "sector-format::profile T0",
+  "note": ""
+ },
+ {
+  "key": "b=8 vs b=4 recall ratio at equal payload and D",
+  "value": 1.35,
+  "unit": "x",
+  "config": "D=128 m=16 b=8 (0.605) vs D=128 m=32 b=4 (0.4485), R=100",
+  "source": "REPORT_VS_IMPLEMENTATION \u00a76.2",
+  "note": "supersedes the 2.5x figure, which compared across both b and D"
+ },
+ {
+  "key": "heap eviction boundary: survives intruders",
+  "value": 72,
+  "unit": "intruders",
+  "config": "R=100, true neighbour at depth 27",
+  "source": "sector-core::heap test",
+  "note": ""
+ },
+ {
+  "key": "heap eviction boundary: evicted at",
+  "value": 73,
+  "unit": "intruders",
+  "config": "R=100, true neighbour at depth 27",
+  "source": "sector-core::heap test",
+  "note": ""
+ },
+ {
+  "key": "median true-neighbour depth in candidate list",
+  "value": 27,
+  "unit": "rank of R=100",
+  "config": "synthetic N=20000 D=256",
+  "source": "technical_report_v5 \u00a7depth",
+  "note": ""
+ },
+ {
+  "key": "share of criticality weight on zero-inflation centroids",
+  "value": 58.3,
+  "unit": "%",
+  "config": "measured per-centroid signed exposure",
+  "source": "BENCHMARKS.md \u00a74",
+  "note": ""
+ },
+ {
+  "key": "label optimisation recall gain at 20% payload corruption",
+  "value": 0.105,
+  "unit": "recall",
+  "config": "synthetic N=20000 D=256 m=32 b=8",
+  "source": "technical_report_v5 \u00a7relabel",
+  "note": ""
+ },
+ {
+  "key": "label optimisation displacement reduction",
+  "value": 1.36,
+  "unit": "x",
+  "config": "synthetic; implementation measured 1.19-1.70x",
+  "source": "REPORT_VS_IMPLEMENTATION \u00a73.5",
+  "note": ""
+ },
+ {
+  "key": "recall lost, f32 exponent bit 30 flip",
+  "value": 0.246,
+  "unit": "recall",
+  "config": "synthetic N=20000 D=256, hottest centroid n=351",
+  "source": "technical_report_v5 \u00a7bounded",
+  "note": ""
+ },
+ {
+  "key": "recall lost, int8 MSB flip",
+  "value": 0.0005,
+  "unit": "recall",
+  "config": "same configuration",
+  "source": "technical_report_v5 \u00a7bounded",
+  "note": ""
+ },
+ {
+  "key": "worst-case displacement ratio f32:int8",
+  "value": 3.9e+37,
+  "unit": "x",
+  "config": "single bit, IEEE-754 binary32 vs bounded i8",
+  "source": "technical_report_v5 \u00a7bounded",
+  "note": ""
+ },
+ {
+  "key": "intruders per query, int8 single-bit flip",
+  "value": 9.6,
+  "unit": "count",
+  "config": "synthetic N=20000 R=100",
+  "source": "technical_report_v5 \u00a7bounded",
+  "note": ""
+ },
+ {
+  "key": "intruders per query, f32 exponent flip",
+  "value": 351,
+  "unit": "count",
+  "config": "the entire affected set",
+  "source": "technical_report_v5 \u00a7bounded",
+  "note": ""
+ }
+]
