@@ -29,6 +29,8 @@ pub struct Args {
     pub seed: u64,
     /// Codebook copies, including the primary.
     pub copies: usize,
+    /// Vector slots to leave erased for later appends.
+    pub reserve: usize,
 }
 
 /// Parse `build` flags.
@@ -42,6 +44,7 @@ pub fn parse(argv: &[String]) -> Result<Args, String> {
         limit: crate::opt_num(argv, "--limit", 0)?,
         seed: crate::opt_num(argv, "--seed", 42)? as u64,
         copies: crate::opt_num(argv, "--copies", 2)?,
+        reserve: crate::opt_num(argv, "--reserve", 0)?,
     })
 }
 
@@ -131,6 +134,7 @@ pub fn run(args: Args) -> Result<(), String> {
             d,
             r: args.r as u32,
             copies: args.copies,
+            reserve: args.reserve,
         },
         &mut image,
     )
