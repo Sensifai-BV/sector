@@ -38,7 +38,8 @@ pub const MANIFEST_RESERVED_BYTES: u32 = 2 * SECTOR_BYTES as u32;
 
 /// Bytes of the encoded manifest the digest covers: everything before the
 /// digest field itself.
-const DIGEST_SCOPE: usize = 4 + 2 + 2 + 8 + 2 + 2 + 2 + 2 + 4 + 4 + RegionTable::ENCODED_BYTES;
+const DIGEST_SCOPE: usize =
+    4 + 2 + 2 + 8 + 2 + 2 + 2 + 2 + 4 + 4 + 4 + 4 + RegionTable::ENCODED_BYTES;
 
 /// Offset of the digest word within the encoded manifest.
 const DIGEST_OFFSET: usize = DIGEST_SCOPE;
@@ -69,6 +70,19 @@ pub enum ManifestError {
     Region(RegionError),
     /// Neither slot verified.
     NoValidSlot,
+    /// The id-range fields are not ordered `built_n <= appended_from <= n`.
+    ///
+    /// A verifying digest proves the bytes are the ones written, not that the
+    /// writer was correct. Refused rather than clamped: a reader that silently
+    /// repaired this would compute a scan extent the regions do not cover.
+    BadIdRange {
+        /// Vectors the builder wrote.
+        built_n: u32,
+        /// First appended id.
+        appended_from: u32,
+        /// Addressable extent.
+        n: u32,
+    },
 }
 
 /// Volume manifest: magic, version, profile parameters, region table, digest.
@@ -84,10 +98,39 @@ pub struct Manifest {
     pub b: u16,
     /// Bytes per codebook component.
     pub cb_bytes: u16,
-    /// Vectors stored.
+    /// Addressable extent: highest stored id plus one.
+    ///
+    /// Not the count of stored vectors when a volume has been appended to — see
+    /// [`Self::built_n`] and [`Self::appended_from`]. [`Self::stored`] is the
+    /// count.
     pub n: u32,
     /// Rerank candidate depth the image was built for.
     pub r: u32,
+    /// Vectors the builder wrote. Ids `[0, built_n)` are stored.
+    pub built_n: u32,
+    /// First id of the appended run.
+    ///
+    /// Ids `[built_n, appended_from)` are **absent**: addressable by arithmetic
+    /// and not present in storage.
+    ///
+    /// # Why a volume can have a hole in it
+    ///
+    /// A CRC covers a whole block and NOR is program-once, so the block holding
+    /// the last built vector is sealed the moment its CRC is written. If that
+    /// block is not full, its remaining record slots can never be filled —
+    /// writing one would require recomputing a CRC word that is already spent.
+    /// An append therefore starts at the next block boundary, and the ids in
+    /// between exist in address arithmetic only.
+    ///
+    /// Reading a record there yields an erased block, whose CRC does not match
+    /// its erased CRC slot, so stage two drops the candidate. That is the same
+    /// signal as detected corruption, which is exactly why the gap is recorded
+    /// here: without it, `dropped` would be permanently non-zero on any appended
+    /// volume and would stop being evidence of damage.
+    ///
+    /// Equal to `built_n` when the built corpus ends on a block boundary, which
+    /// is the no-gap case and costs nothing.
+    pub appended_from: u32,
     /// Region table.
     pub table: RegionTable,
 }
@@ -114,6 +157,8 @@ impl Manifest {
         w.u16(self.cb_bytes);
         w.u32(self.n);
         w.u32(self.r);
+        w.u32(self.built_n);
+        w.u32(self.appended_from);
         let at = w.at;
 
         let written = self
@@ -165,10 +210,24 @@ impl Manifest {
         let cb_bytes = r.u16();
         let n = r.u32();
         let rerank_depth = r.u32();
+        let built_n = r.u32();
+        let appended_from = r.u32();
 
         let table = RegionTable::decode(buf.get(r.at..).ok_or(ManifestError::Truncated)?)
             .map_err(ManifestError::Region)?;
         table.validate().map_err(ManifestError::Region)?;
+
+        // The gap fields must be ordered, or the valid-id set is nonsense. A
+        // digest that verifies proves the bytes are the ones written; it does not
+        // prove the writer was correct, and a reader that trusted
+        // `appended_from > n` would compute a scan extent past the region.
+        if built_n > appended_from || appended_from > n {
+            return Err(ManifestError::BadIdRange {
+                built_n,
+                appended_from,
+                n,
+            });
+        }
 
         Ok(Self {
             sequence,
@@ -178,8 +237,35 @@ impl Manifest {
             cb_bytes,
             n,
             r: rerank_depth,
+            built_n,
+            appended_from,
             table,
         })
+    }
+
+    /// Vectors actually stored, excluding the gap.
+    ///
+    /// This is the count; [`Self::n`] is the addressable extent. They differ only
+    /// on an appended volume whose built corpus did not end on a block boundary.
+    pub const fn stored(&self) -> u32 {
+        self.built_n + (self.n - self.appended_from)
+    }
+
+    /// Ids absent from storage, as a half-open range.
+    ///
+    /// Empty when the built corpus ended on a block boundary.
+    pub const fn gap(&self) -> (u32, u32) {
+        (self.built_n, self.appended_from)
+    }
+
+    /// Whether `id` is stored.
+    pub const fn holds(&self, id: u32) -> bool {
+        id < self.built_n || (id >= self.appended_from && id < self.n)
+    }
+
+    /// Vectors appended since the build.
+    pub const fn appended(&self) -> u32 {
+        self.n - self.appended_from
     }
 }
 
@@ -197,13 +283,35 @@ pub fn select(slot_a: &[u8], slot_b: &[u8]) -> Result<Manifest, ManifestError> {
     }
 }
 
-/// Offset of the slot the next install writes: the one not currently live.
+/// Offset of the slot the next install writes: the one **not** currently live.
+///
+/// # The convention
+///
+/// A manifest's slot is fixed by the parity of its sequence: odd sequences live in
+/// slot A, even in slot B. `emit` writes sequence 1, hence slot A. So the next
+/// install — sequence `live + 1` — takes the other slot, and this returns it.
+///
+/// # Why it must be the other slot
+///
+/// The two slots exist so an interrupted install is survivable: the half-written
+/// slot fails its digest and `select` falls back to the intact one. Writing the
+/// new manifest over the live slot would remove that fallback, and a power loss
+/// mid-write would leave a volume with no valid manifest at all.
+///
+/// An earlier version of this function returned the parity of the *live* sequence
+/// rather than its complement, which is the live slot itself — the opposite of
+/// what the name and this documentation promise. Nothing had called it: `emit`
+/// writes slot A directly, and no second install existed until the append path.
+/// On real NOR the bug fails safe rather than silently, because programming a slot
+/// that already holds a manifest would have to set cleared bits, which flash
+/// refuses. It is fixed here and asserted below in both directions.
 #[allow(clippy::manual_is_multiple_of)] // `is_multiple_of` is not const on stable
 pub const fn next_slot_offset(live_sequence: u64) -> u32 {
+    // The live manifest is in A when its sequence is odd, so the next goes to B.
     if live_sequence % 2 == 0 {
-        SLOT_B_OFFSET
-    } else {
         SLOT_A_OFFSET
+    } else {
+        SLOT_B_OFFSET
     }
 }
 
@@ -294,6 +402,9 @@ mod tests {
             cb_bytes: 1,
             n: 8_966,
             r: 500,
+            // No gap: a built-only volume has built_n == appended_from == n.
+            built_n: 8_966,
+            appended_from: 8_966,
             table: table(),
         }
     }
@@ -387,8 +498,24 @@ mod tests {
 
     #[test]
     fn install_alternates_slots() {
-        assert_eq!(next_slot_offset(0), SLOT_B_OFFSET);
-        assert_eq!(next_slot_offset(1), SLOT_A_OFFSET);
-        assert_eq!(next_slot_offset(8), SLOT_B_OFFSET);
+        // `emit` writes sequence 1 into slot A, so the next install goes to B.
+        assert_eq!(next_slot_offset(1), SLOT_B_OFFSET);
+        // Sequence 2 lives in B, so the one after returns to A.
+        assert_eq!(next_slot_offset(2), SLOT_A_OFFSET);
+        // The returned slot is never the live one, at any sequence.
+        for live in 0..8u64 {
+            let live_slot = if live % 2 == 0 {
+                SLOT_B_OFFSET
+            } else {
+                SLOT_A_OFFSET
+            };
+            assert_ne!(
+                next_slot_offset(live),
+                live_slot,
+                "sequence {live} would overwrite its own slot"
+            );
+        }
+        // Even sequences live in B, so the next goes to A.
+        assert_eq!(next_slot_offset(8), SLOT_A_OFFSET);
     }
 }
