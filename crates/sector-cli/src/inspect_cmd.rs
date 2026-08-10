@@ -62,10 +62,16 @@ pub fn run(args: Args) -> Result<(), String> {
         );
     }
 
-    // Recomputed, not read back.
+    // Recomputed, not read back — and via `Geometry`, so the arithmetic is the
+    // same one the engine and `stats` use rather than a third copy of it.
+    //
+    // Deriving `payload_bytes` as `m` alone was also only right at `b = 8`: the
+    // record is `m * b / 8`, so a `b = 4` image would have been reported at twice
+    // its true payload size. `Geometry::of` does that division.
+    let geometry = sector_os::Geometry::of(&m);
     let codebook_bytes = (1usize << m.b) * m.d as usize;
-    let payload_bytes = m.m as usize;
-    let rerank_bytes = m.d as usize;
+    let payload_bytes = geometry.payload_bytes;
+    let rerank_bytes = geometry.rerank_bytes;
     println!("\nbudget (recomputed from the profile)");
     println!("  codebook            {codebook_bytes} B  (2^b * D, independent of N)");
     println!("  payload per vector  {payload_bytes} B");
@@ -73,9 +79,14 @@ pub fn run(args: Args) -> Result<(), String> {
         "  rerank per vector   {rerank_bytes} B  ({}x payload)",
         rerank_bytes / payload_bytes.max(1)
     );
+    // One shared computation, because this figure was previously derived
+    // independently here and in `stats` and the two disagreed — 168 B against
+    // 160 B for the same volume, and neither was right (161.25 B).
+    let centi = geometry.stored_bytes_per_vector_centi();
     println!(
-        "  stored per vector   {} B",
-        payload_bytes + rerank_bytes + 8 // CRC share at 512 B blocks, both regions
+        "  stored per vector   {}.{:02} B  (payload + rerank + CRC share)",
+        centi / 100,
+        centi % 100
     );
 
     // A truncated image keeps a verifying manifest — the digest covers the
