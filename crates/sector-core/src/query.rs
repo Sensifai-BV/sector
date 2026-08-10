@@ -302,13 +302,20 @@ mod tests {
 
     impl RerankSource for Records {
         type Error = ();
-        fn record(&mut self, id: u32) -> Result<Option<(&[u8], &[u32])>, ()> {
+        fn record(&mut self, id: u32) -> Result<Option<crate::rerank::Guarded<'_>>, ()> {
             let i = id as usize;
             if i >= N {
                 return Ok(None);
             }
             self.scratch = self.crcs[i];
-            Ok(Some((&self.data[i][..], &self.scratch[..])))
+            // A record that is a whole number of blocks: offset zero, length the
+            // full span. The sub-block case is covered in `rerank`'s own tests.
+            Ok(Some(crate::rerank::Guarded {
+                blocks: &self.data[i][..],
+                offset: 0,
+                len: D,
+                crcs: &self.scratch[..],
+            }))
         }
         fn block_bytes(&self) -> usize {
             BLOCK
