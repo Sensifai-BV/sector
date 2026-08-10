@@ -1,0 +1,41 @@
+# Cross-linking for the Raspberry Pi targets.
+#
+# # Why these two flags
+#
+# Without them, cargo invokes the host's `cc` as the linker, which on macOS is
+# Apple's `ld`. That linker does not understand GNU options (`--as-needed`,
+# `-Bstatic`, `--gc-sections`, `-z relro`), so the link fails with a wall of
+# "unknown options" after every crate has already compiled. The failure looks like
+# a code problem and is not one.
+#
+# `linker=rust-lld` uses the LLVM linker that ships inside the Rust toolchain, and
+# `link-self-contained=yes` uses the toolchain's own musl `crt` objects and
+# `libc.a`. Together they mean the three ARM targets cross-compile with **no C
+# toolchain, no apt packages and no sysroot** — from macOS as readily as from
+# Linux, which is what lets one release workflow build every Pi artifact on a
+# single runner.
+#
+# The result is a static binary: one artifact per ABI runs on Raspberry Pi OS,
+# Debian, Ubuntu, Alpine and Yocto with no runtime dependency and no glibc version
+# floor to track.
+#
+# These settings live here rather than in the release workflow so a developer's
+# `cargo build --target arm-unknown-linux-musleabihf` behaves the same as CI's.
+# See docs/PLATFORMS.md for which board takes which artifact.
+
+# Pi 1, Pi Zero, Zero W, Compute Module 1 — ARMv6 + VFPv2.
+[target.arm-unknown-linux-musleabihf]
+rustflags = ["-C", "linker=rust-lld", "-C", "link-self-contained=yes"]
+
+# Pi 2 Model B v1.1 — Cortex-A7, ARMv7-A. Also the artifact for any 64-bit-capable
+# board running a 32-bit userland.
+[target.armv7-unknown-linux-musleabihf]
+rustflags = ["-C", "linker=rust-lld", "-C", "link-self-contained=yes"]
+
+# Pi 2 v1.2, Zero 2 W, Pi 3, Pi 4, Pi 5 — ARMv8-A with a 64-bit userland.
+[target.aarch64-unknown-linux-musl]
+rustflags = ["-C", "linker=rust-lld", "-C", "link-self-contained=yes"]
+
+# x86_64 musl, for a development host or a container.
+[target.x86_64-unknown-linux-musl]
+rustflags = ["-C", "linker=rust-lld", "-C", "link-self-contained=yes"]
