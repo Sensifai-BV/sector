@@ -346,9 +346,19 @@ fn keep_alive_serves_several_requests_on_one_connection() {
             .write_all(b"GET /health HTTP/1.1\r\nHost: x\r\n\r\n")
             .expect("write");
         stream.flush().expect("flush");
-        let mut buf = [0u8; 512];
-        let n = stream.read(&mut buf).expect("read");
-        let text = String::from_utf8_lossy(&buf[..n]);
+        let mut buf = vec![0u8; 1024];
+        let mut total = 0;
+        loop {
+            let n = stream.read(&mut buf[total..]).expect("read");
+            if n == 0 {
+                break;
+            }
+            total += n;
+            if String::from_utf8_lossy(&buf[..total]).contains("}") {
+                break;
+            }
+        }
+        let text = String::from_utf8_lossy(&buf[..total]);
         assert!(text.starts_with("HTTP/1.1 200"), "request {i}: {text}");
         assert!(
             text.contains("Connection: keep-alive"),

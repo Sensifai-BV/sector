@@ -479,7 +479,7 @@ fn handle_connection<S, F>(
         return;
     };
     let mut reader = BufReader::new(stream);
-    let mut writer = write_half;
+    let mut writer = std::io::BufWriter::new(write_half);
 
     loop {
         let request = match http::read_request(&mut reader) {
