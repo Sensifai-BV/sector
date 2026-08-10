@@ -1,0 +1,38 @@
+[Unit]
+Description=SECTOR vector search daemon socket
+Documentation=https://github.com/Sensifai-BV/sector
+
+[Socket]
+ListenStream=/run/sector/sector.sock
+SocketMode=0660
+# Set this to the group your clients belong to. Filesystem permissions are the
+# whole access control story here: the daemon does not authenticate.
+SocketGroup=sector
+RemoveOnStop=yes
+
+[Install]
+WantedBy=sockets.target
+
+# --- What this unit does and does not do ---
+#
+# This is a *convenience* unit for the ordering it gives you: enabling it makes
+# systemd create /run/sector and the socket path before the service starts, so a
+# client connecting immediately after boot does not race the daemon's own bind.
+#
+# It is NOT socket activation in the inherit-the-fd sense. The daemon binds its
+# own listener from --socket rather than accepting a descriptor from systemd,
+# because inheriting one means implementing the sd_listen_fds protocol
+# (LISTEN_FDS, LISTEN_PID, and the fd-3 convention) and that would be either a
+# dependency or hand-rolled unsafe code in a project whose host workspace has
+# neither.
+#
+# The consequence is worth stating plainly rather than leaving to be discovered:
+# with both units enabled, systemd creates the socket and the daemon then removes
+# and rebinds it at startup. That works — the daemon distinguishes a stale socket
+# file from a live one by connecting to it first — but it means Accept=no
+# activation-on-demand does not apply, and a client's first connection can still
+# arrive before the daemon's own bind.
+#
+# So: enable sector.service. Enable this too only if you want the directory and
+# path pre-created. If you want true socket activation, that is a feature request
+# against the daemon, not a change to this file.

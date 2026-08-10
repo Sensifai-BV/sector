@@ -1,0 +1,110 @@
+[Unit]
+Description=SECTOR vector search daemon
+Documentation=https://github.com/Sensifai-BV/sector
+# The volume is read from disk at mount, so the filesystem holding it must be up.
+After=local-fs.target
+Wants=local-fs.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/sector/sector.conf
+ExecStart=/usr/local/bin/sector serve \
+    --image ${SECTOR_IMAGE} \
+    --socket ${SECTOR_SOCKET} \
+    --workers ${SECTOR_WORKERS} \
+    --k ${SECTOR_K}
+
+# A volume that cannot be mounted is a configuration error, not a transient
+# fault: the daemon refuses to start rather than answering 503 forever. Restart
+# on-failure with a delay so a genuinely transient cause (a disk still spinning
+# up on a Pi at boot) recovers, while a bad --image does not spin.
+Restart=on-failure
+RestartSec=5s
+# Five failures in a minute stops the unit. Without this a wrong path retries
+# forever and the journal fills a Pi's SD card.
+StartLimitBurst=5
+StartLimitIntervalSec=60s
+
+# SIGTERM is the shutdown path the daemon implements: workers finish the request
+# in flight, the socket file is removed, and the process exits. 30 s is generous
+# — a query is milliseconds — and exists so a stuck read on failing storage does
+# not become a SIGKILL that leaves a stale socket.
+KillSignal=SIGTERM
+TimeoutStopSec=30s
+
+# --- Identity ---
+#
+# DynamicUser gives the daemon a per-boot UID with no home, no shell and no
+# presence in /etc/passwd. It serves a read-only volume and needs no identity
+# beyond read access to it.
+DynamicUser=yes
+# The runtime directory for the socket, created and removed by systemd with the
+# right ownership. Hardcoded rather than derived from SECTOR_SOCKET: systemd
+# does not expand variables here, and a mismatch would leave the daemon binding
+# a path it cannot write.
+RuntimeDirectory=sector
+RuntimeDirectoryMode=0755
+# 0660 on the socket itself: group members can query, others cannot. Set the
+# group to whichever group your clients belong to.
+UMask=0007
+
+# --- Filesystem ---
+#
+# The daemon reads one volume and writes nothing. `sector append` is a separate
+# command run against a volume the daemon is not serving, precisely so this unit
+# can stay read-only.
+ProtectSystem=strict
+ProtectHome=yes
+ReadOnlyPaths=/etc/sector
+PrivateTmp=yes
+# Grant read access to wherever the volume lives. /var/lib/sector is the
+# convention the installer uses; change both this and SECTOR_IMAGE together.
+ReadOnlyPaths=/var/lib/sector
+
+# --- Kernel and privilege ---
+#
+# No capabilities at all: binding a Unix socket in RuntimeDirectory needs none,
+# and neither does reading a file. A TCP listener on a port below 1024 would
+# need CAP_NET_BIND_SERVICE — use a port above 1024 or a reverse proxy instead
+# of granting it.
+CapabilityBoundingSet=
+AmbientCapabilities=
+NoNewPrivileges=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+ProtectProc=invisible
+LockPersonality=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+# AF_UNIX for the default socket; AF_INET/AF_INET6 only because --listen is
+# supported. Remove the INET families if you serve the socket only.
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+# The daemon is integer arithmetic over mmap/pread and has no reason to load a
+# writable-then-executable page.
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @resources @obsolete
+
+# --- Resources ---
+#
+# The daemon's resident cost is workers x Searcher::resident_bytes(), reported at
+# startup and by `GET /info`. MemoryMax is left unset deliberately: a correct
+# value depends on the volume, and a wrong one turns a working deployment into
+# an OOM kill. Read the startup banner, then set it here with headroom.
+#
+# On a 512 MB Pi Zero 2 W, uncomment and size against the reported figure:
+#MemoryMax=256M
+#
+# The scan is CPU-bound integer work. On a single-core Pi 1 or Zero, one worker
+# and a CPU quota below 100% keeps the board responsive to ssh under load.
+#CPUQuota=80%
+
+[Install]
+WantedBy=multi-user.target
