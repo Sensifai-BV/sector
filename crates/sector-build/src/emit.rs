@@ -73,11 +73,63 @@ pub struct Image<'a> {
     pub r: u32,
     /// Codebook copies, including the primary.
     pub copies: usize,
+    /// Vector slots to leave erased for later appends.
+    ///
+    /// # Why this sizes both regions
+    ///
+    /// An id needs a code *and* a rerank record, so headroom is whichever region
+    /// runs out first — and they run out at different rates. Rerank is
+    /// `d * cb_bytes` per vector against the payload's `m * b / 8`, so at every
+    /// shipped profile rerank binds: at `D = 128, m = 16` a block holds 32 codes
+    /// and 4 rerank records, an 8:1 ratio.
+    ///
+    /// Before this field existed, headroom was whatever each region's independent
+    /// rounding-up to an erase sector happened to leave. A measured example: a
+    /// 400-vector test volume had 512 spare payload slots and **112** spare
+    /// rerank slots. Reserving payload space alone would report capacity that
+    /// does not exist.
+    ///
+    /// Reserved blocks are erased, not free: they occupy the volume and `verify`
+    /// sweeps them. A build that reserves and never appends has paid for nothing.
+    pub reserve: usize,
 }
 
 /// Round `bytes` up to a whole erase sector.
 const fn sectors(bytes: usize) -> usize {
     bytes.next_multiple_of(SECTOR_BYTES)
+}
+
+/// Ids per append: `lcm(payload_per_block, rerank_per_block)`.
+///
+/// An appended id needs both a code and a rerank record, so an append must
+/// advance both regions by whole blocks — a partial block would need its CRC
+/// rewritten, and NOR is program-once. The least common multiple is the smallest
+/// run satisfying both.
+///
+/// At the shipped profiles this is 32 ids (`D=128, m=16`) or 16 (`D=128, m=32`),
+/// so the largest possible gap is 31 ids and an append costs 9 or 5 block
+/// programs. Both bounded, which is what makes append viable on a device.
+pub const fn append_unit(payload_per_block: usize, rerank_per_block: usize) -> usize {
+    // `Ord::max` is not const on stable, so the clamps are written out.
+    let a = if payload_per_block == 0 {
+        1
+    } else {
+        payload_per_block
+    };
+    let b = if rerank_per_block == 0 {
+        1
+    } else {
+        rerank_per_block
+    };
+    // gcd by subtraction-free Euclid; `const fn` cannot loop with `while let`.
+    let mut x = a;
+    let mut y = b;
+    while y != 0 {
+        let t = x % y;
+        x = y;
+        y = t;
+    }
+    a / x * b
 }
 
 /// Emit a complete volume image into `out`.
@@ -92,12 +144,30 @@ pub fn emit(image: &Image<'_>, out: &mut Vec<u8>) -> Result<EmitReport, EmitErro
     let rerank_bytes = image.d;
 
     let payload_per_block = BLOCK_BYTES / payload_bytes.max(1);
-    let payload_blocks = image.n.div_ceil(payload_per_block.max(1));
     let rerank_per_block = BLOCK_BYTES / rerank_bytes.max(1);
-    let rerank_blocks = if rerank_bytes <= BLOCK_BYTES {
-        image.n.div_ceil(rerank_per_block.max(1))
+
+    // The append unit: the smallest id run that is a whole number of blocks in
+    // *both* regions. An append must advance both, and a partial block in either
+    // would need its CRC rewritten — which NOR cannot do.
+    let unit = append_unit(payload_per_block, rerank_per_block);
+
+    // Capacity to lay down. The first append cannot start inside the block
+    // holding the last built vector — that block's CRC is written, and NOR is
+    // program-once — so the reserve is measured from the next unit boundary.
+    // Rounding here rather than at append time means the reserved slot count the
+    // operator asked for is the count they can actually use.
+    let append_head = if image.reserve == 0 {
+        image.n
     } else {
-        image.n * rerank_bytes.div_ceil(BLOCK_BYTES)
+        image.n.next_multiple_of(unit.max(1))
+    };
+    let capacity = append_head + image.reserve;
+
+    let payload_blocks = capacity.div_ceil(payload_per_block.max(1));
+    let rerank_blocks = if rerank_bytes <= BLOCK_BYTES {
+        capacity.div_ceil(rerank_per_block.max(1))
+    } else {
+        capacity * rerank_bytes.div_ceil(BLOCK_BYTES)
     };
 
     let cb_bytes = image.codebook.byte_len();
@@ -161,6 +231,17 @@ pub fn emit(image: &Image<'_>, out: &mut Vec<u8>) -> Result<EmitReport, EmitErro
         write_at(out, at, &cb);
     }
 
+    // Only the blocks holding built vectors are written, and only their CRC slots.
+    // Reserved blocks stay erased with erased CRC words, which is what
+    // `append::find_head` recognises — the erased state is the append journal, so
+    // writing a CRC for an empty block would make it look occupied forever.
+    let built_payload_blocks = image.n.div_ceil(payload_per_block.max(1));
+    let built_rerank_blocks = if rerank_bytes <= BLOCK_BYTES {
+        image.n.div_ceil(rerank_per_block.max(1))
+    } else {
+        image.n * rerank_bytes.div_ceil(BLOCK_BYTES)
+    };
+
     // Payload, block by block, so a partial final block is padded rather than
     // running into the next region.
     write_blocks(
@@ -170,7 +251,7 @@ pub fn emit(image: &Image<'_>, out: &mut Vec<u8>) -> Result<EmitReport, EmitErro
         image.codes,
         payload_bytes,
         payload_per_block,
-        payload_blocks,
+        built_payload_blocks,
     );
 
     // Rerank records.
@@ -181,7 +262,7 @@ pub fn emit(image: &Image<'_>, out: &mut Vec<u8>) -> Result<EmitReport, EmitErro
         image.rerank,
         rerank_bytes,
         rerank_per_block.max(1),
-        rerank_blocks,
+        built_rerank_blocks,
     );
 
     // Manifest last: it points at regions that are already laid down.
@@ -191,8 +272,23 @@ pub fn emit(image: &Image<'_>, out: &mut Vec<u8>) -> Result<EmitReport, EmitErro
         m: m as u16,
         b: image.codebook.k.trailing_zeros() as u16,
         cb_bytes: 1,
+        // `n` is the addressable extent: highest id plus one, not the stored
+        // count. A fresh build has appended nothing, so the extent ends where the
+        // built corpus does — `appended_from` marks where a *future* append will
+        // start and is only reached once one happens.
+        //
+        // Setting `n` to `appended_from` here instead would claim the reserved
+        // slots are populated: `stored()` would report the gap as present, and the
+        // scan would read erased blocks and drop every candidate in them.
         n: image.n as u32,
         r: image.r,
+        built_n: image.n as u32,
+        // No gap at build time: nothing has been appended, so the stored set is
+        // exactly `[0, n)`. The gap comes into being when the first append
+        // happens and writes a manifest whose `appended_from` is the head it
+        // found — which is why `built_n <= appended_from <= n` holds at every
+        // point in a volume's life rather than only after an append.
+        appended_from: image.n as u32,
         table,
     };
     let mut slot = [0u8; MANIFEST_BYTES];
@@ -306,6 +402,7 @@ mod tests {
                 d: D,
                 r: 100,
                 copies: 2,
+                reserve: 0,
             },
             &mut out,
         )
