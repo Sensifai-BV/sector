@@ -119,8 +119,7 @@ jobs:
             . "$HOME/export-esp.sh"
           fi
 
-          cargo build --release --bin bench \
-            --features "chip-${CHIP}" --target "${TARGET}"
+          ../../scripts/build_chip.sh "${CHIP}" --bin bench
 
           ELF="target/${TARGET}/release/bench"
           test -f "$ELF"
