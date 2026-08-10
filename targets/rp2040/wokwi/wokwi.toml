@@ -1,0 +1,6 @@
+[wokwi]
+version = 1
+# thumbv6m-none-eabi is the only target this crate builds for; unlike the esp32
+# matrix there is nothing to rewrite per chip, so this path is fixed.
+elf = "../target/thumbv6m-none-eabi/release/bench"
+firmware = "../target/thumbv6m-none-eabi/release/bench"
