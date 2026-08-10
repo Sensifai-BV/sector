@@ -336,6 +336,8 @@ mod tests {
             cb_bytes: profile.cb_bytes as u16,
             n: 1_000,
             r: profile.r as u32,
+            built_n: 1_000,
+            appended_from: 1_000,
             table: table(),
         }
     }
