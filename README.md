@@ -1,6 +1,6 @@
 # SECTOR
 
-**Criticality-aware approximate nearest-neighbour search for microcontroller-class devices.**
+**Criticality-aware approximate nearest-neighbour vector search for microcontroller-class devices.**
 
 Rust · `no_std` · heapless · integer-only · zero allocation on the query path
 
@@ -27,11 +27,11 @@ literature does not treat it.
 
 Three consequences, and **two of them are free**:
 
-| | Mechanism | Cost |
-|---|---|---|
-| Bounded formats cap worst-case damage | int8 fixed-point codebooks, never f32 | zero bytes, zero cycles |
+|                                                | Mechanism                                 | Cost                    |
+|------------------------------------------------|-------------------------------------------|-------------------------|
+| Bounded formats cap worst-case damage          | int8 fixed-point codebooks, never f32     | zero bytes, zero cycles |
 | Centroid labels are arbitrary — so choose them | build-time permutation, provably lossless | zero bytes, zero cycles |
-| Protection belongs where criticality is | measured per-centroid allocation | ~0.8% of stored bytes |
+| Protection belongs where criticality is        | measured per-centroid allocation          | ~0.8% of stored bytes   |
 
 One bit flipped in an f32 codebook costs 0.246 recall — 39% of baseline. The
 same bit in a bounded int8 codebook costs 0.0005.
@@ -39,10 +39,10 @@ same bit in a bounded int8 codebook costs 0.0005.
 ## Configuration
 
 Codebook size is `2^b · D` and does not depend on `m`, so 8-bit codes fit T0's
-192 KiB budget at any `D ≤ 384` and are out of reach at `D = 768`. Since 8-bit
-codes measure roughly 2.5x the recall of 4-bit ones at equal payload size, T0
-targets `D = 128` — SIFT's dimension, and the common output width of edge
-embedding models.
+192 KiB budget at any `D ≤ 384` and are out of reach from `D = 736` up. Since
+8-bit codes measure 1.35x the recall of 4-bit ones at equal payload *and* equal
+dimension (0.605 against 0.4485 at `R = 100`), T0 targets `D = 128` — SIFT's
+dimension, and the common output width of edge embedding models.
 
 T0 (`D=128, m=16, b=8, int8, R=500`): 16 B/vector payload, 32 KiB codebook,
 8 KiB ADC table, 51.9 KiB fixed, **8,966 vectors resident** in 192 KiB, with
@@ -56,36 +56,78 @@ FTL random-read penalty for the same access pattern.
 These figures are `const`-asserted in `sector-format::profile`. A configuration
 that does not fit fails the build.
 
-## Layout
+## Raspberry Pi
 
+Every Pi ever made is covered by three static musl binaries.
+maps each board to its artifact and
+explains why the Zero and the Zero 2 W need different ones — they differ by ISA
+generation, not by speed.
+
+```sh
+# On the Pi, from an unpacked release archive:
+./sector doctor                 # what this board is, and whether this binary fits it
+sudo ./install.sh --image volume.sector
+systemctl enable --now sector
 ```
-crates/
-  sector-hal/      traits: NorFlash, Xip, Clock, Instrument     no_std, zero deps
-  sector-quant/    integer PQ: codebooks, ADC, rotation, labels no_std
-  sector-codec/    CRC32, replication, RS(n,k) over GF(2^8)     no_std
-  sector-format/   on-flash layout + tier profiles              no_std
-  sector-core/     the heapless query engine                    no_std
-  sector-build/    host-side index builder                      std
-  sector-sim/      fault injection + claim validation           std, dev-only
-  sector-cli/      build / inspect / query / falsify            std, dev-only
-targets/esp32/     T0 and T1 firmware
+
+`doctor` exists because the failure it catches is quiet: a binary built for a
+newer instruction set installs cleanly on an older board and then dies with
+`SIGILL` at the first unsupported instruction, possibly not until a query
+arrives. `install.sh` runs it first and refuses rather than installing something
+that cannot work.
+
+### The daemon
+
+```sh
+sector serve --image volume.sector --socket /run/sector/sector.sock
+curl --unix-socket /run/sector/sector.sock http://localhost/info
 ```
 
-## Status
+| Route                       | Method | Purpose                               |
+|-----------------------------|--------|---------------------------------------|
+| `/health`                   | GET    | liveness, no volume access            |
+| `/ready`                    | GET    | readiness — runs a real query         |
+| `/info`                     | GET    | geometry, tier, board, resident bytes |
+| `/stats`                    | GET    | counters since start                  |
+| `/search`                   | POST   | one or more queries                   |
+| `/vectors`, `/vectors/{id}` | GET    | stored records                        |
 
-Pre-implementation. Workspace scaffolded, traits and tier profiles written,
-budgets compiler-enforced. Two blocking preconditions remain open: no code has
-run on hardware, and every recall figure to date uses a synthetic corpus.
+No TLS and no authentication, which is why a Unix socket is the default and
+filesystem permissions are the access control. `--listen` is for a trusted
+network or behind a reverse proxy.
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/TASKS.md](docs/TASKS.md).
+### Adding vectors
+
+```sh
+sector build --input corpus.fvecs --out volume.sector --reserve 4096
+sector append --image volume.sector --input new.fvecs --dry-run
+sector append --image volume.sector --input new.fvecs
+```
+
+Insert-only: there is no delete and no update, because a validity bitmap would
+add a per-candidate lookup to the scan loop the cost argument is about. `build`
+is how a vector is removed. `--reserve` must be given at build time — without it
+a volume is fixed at its built size. `--dry-run` reports the id gap an append
+would create before writing anything;
+[docs/design/002-append-and-reserve.md](docs/design/002-append-and-reserve.md)
+explains why the gap exists.
 
 ## Building
 
 ```sh
-make check-all     # fmt, clippy, test, no_std build, cargo-deny
+make check-all     # fmt, clippy, test, no_std, asm-check, Pi cross-builds, deny
 make nostd         # the no_std guarantee on thumbv7em-none-eabihf
 make build-t0      # ESP32-C3 firmware
+make build-pi      # static binaries for all three Pi ABIs
+make check-pi      # cross-compile the whole workspace, every feature, per ABI
+make isa-check     # assert each ARM artifact declares the ISA baseline it claims
+make test-cross    # run the suite under qemu-user (Linux; fails if qemu is absent)
+make selftest      # end-to-end on this machine, no dataset needed
 ```
+
+`test-cross` is deliberately outside `check-all`: it needs `qemu-user-static`, and
+a target that skipped on a missing prerequisite would let `check-all` report green
+without having run it. CI runs that leg on Linux, where the prerequisite is real.
 
 ## License
 
