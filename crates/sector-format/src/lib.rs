@@ -29,7 +29,7 @@ pub const MAGIC_VOLUME: [u8; 4] = *b"SECT";
 
 /// On-flash format version. Any layout change bumps this; a device refuses to
 /// mount a volume it does not recognise rather than mis-reading it.
-pub const FORMAT_VERSION: u16 = 1;
+pub const FORMAT_VERSION: u16 = 2;
 
 /// Block granularity for CRC and for the payload/rerank regions.
 ///
