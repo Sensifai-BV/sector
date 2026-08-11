@@ -1,6 +1,6 @@
 # SECTOR
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21883863.svg)](https://doi.org/10.5281/zenodo.21883863)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21883870.svg)](https://doi.org/10.5281/zenodo.21883870)
 
 
 SECTOR is an on-flash index format and integer-only, zero-allocation search engine designed specifically for approximate nearest-neighbour vector search on highly constrained microcontroller-class
