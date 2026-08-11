@@ -1,7 +1,20 @@
 # SECTOR
 
-**Criticality-aware approximate nearest-neighbour vector search for microcontroller-class devices.**
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21883863.svg)](https://doi.org/10.5281/zenodo.21883863)
 
+
+SECTOR is an on-flash index format and integer-only, zero-allocation search engine designed specifically for approximate nearest-neighbour vector search on highly constrained microcontroller-class
+devices. These edge devices—such as standalone wildlife cameras or industrial sensors—typically lack operating systems, floating-point units, and heaps, meaning conventional server-optimized
+search architectures simply cannot run on them. To overcome strict limitations on RAM, flash storage, and energy consumption, SECTOR relies on product quantization (PQ) and fixed-point int8
+arithmetic. This approach heavily compresses vector embeddings so that massive datasets, which would otherwise exceed device storage, can reside and be efficiently searched directly on the
+microcontroller's limited flash memory.
+
+The core innovation of the project is its theoretical and practical treatment of the index as a stored artifact vulnerable to corruption. Because microcontrollers often read raw NOR flash without
+error-correcting code (ECC) protections, data corruption is a dominant failure mode. SECTOR identifies a critical asymmetry in compression: a corrupted payload byte damages only one vector,
+whereas a corrupted codebook byte damages every vector that shares that centroid. To solve this, the engine employs a bounded max-heap to naturally evict false positives (intruders) and utilizes
+zero-cost format-level defenses like bounded fixed-point storage and lossless centroid relabeling. The result is a highly robust and fast search engine that, when compared to a raw flat scan
+baseline, is 5.5× faster, achieves higher recall, and can fit 6.1× more vectors into a strict 192 KiB RAM budget without wasting space on traditional uniform error correction.
+  
 Rust · `no_std` · heapless · integer-only · zero allocation on the query path
 
 ---
